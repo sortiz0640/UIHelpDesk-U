@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0"
+            prefHeight="720.0" prefWidth="1280.0"
+            style="-fx-background-color: #00a6fb;"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="cr.ac.ucenfotec.sortiz0640.tl.ControllerTicket">
+
+    <left>
+        <AnchorPane prefHeight="720.0" prefWidth="287.0" style="-fx-background-color: #ffff;" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Header -->
+                <Label layoutX="71.0" layoutY="107.0" prefHeight="34.0" prefWidth="171.0"
+                       text="Crear Ticket" textAlignment="CENTER" textOverrun="CLIP" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+
+                <Label layoutX="93.0" layoutY="153.0" text="Complete el formulario" textFill="#6b7280">
+                    <font>
+                        <Font size="11.0" />
+                    </font>
+                </Label>
+
+                <!-- Información del usuario actual -->
+                <Label fx:id="lblUsuarioInfo" layoutX="37.0" layoutY="189.0" prefWidth="216.0"
+                       text="Usuario: cargando..." textFill="#374151" wrapText="true">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Label>
+
+                <!-- Botón regresar -->
+                <Button fx:id="btnRegresar" graphicTextGap="1.0" layoutX="37.0" layoutY="600.0"
+                        minHeight="20.0" mnemonicParsing="false" onAction="#regresarAlHome"
+                        prefHeight="31.0" prefWidth="216.0"
+                        style="-fx-background-color: #6b7280; -fx-background-radius: 5;"
+                        text="Regresar al Home" textFill="WHITE" textOverrun="CLIP">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Button>
+
+                <Label layoutX="59.0" layoutY="649.0" text="Universidad Cenfotec | Sebas Ortiz" textFill="#6b7280">
+                    <font>
+                        <Font size="11.0" />
+                    </font>
+                </Label>
+                <Label layoutX="132.0" layoutY="678.0" text="2025" textFill="#6b7280">
+                    <font>
+                        <Font size="11.0" />
+                    </font>
+                </Label>
+            </children>
+        </AnchorPane>
+    </left>
+
+    <center>
+        <AnchorPane prefHeight="720.0" prefWidth="993.0" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Título -->
+                <Label layoutX="57.0" layoutY="30.0" text="Nuevo Ticket" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+
+                <!-- Formulario de creación -->
+                <VBox layoutX="57.0" layoutY="80.0" prefHeight="550.0" prefWidth="884.0"
+                      style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 30;">
+                    <children>
+                        <!-- Asunto -->
+                        <Label text="Asunto *" textFill="#374151">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <TextField fx:id="txtAsunto" prefHeight="35.0" prefWidth="824.0"
+                                   promptText="Ingrese el asunto del ticket"
+                                   style="-fx-background-color: #f3f4f6; -fx-border-color: #d1d5db; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 5;"/>
+
+                        <Region prefHeight="15.0" prefWidth="824.0" />
+
+                        <!-- Descripción -->
+                        <Label text="Descripción *" textFill="#374151">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <TextArea fx:id="txtDescripcion" prefHeight="120.0" prefWidth="824.0"
+                                  promptText="Describa detalladamente el problema o solicitud"
+                                  wrapText="true"
+                                  style="-fx-background-color: #f3f4f6; -fx-border-color: #d1d5db; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 5;"/>
+
+                        <Region prefHeight="15.0" prefWidth="824.0" />
+
+                        <!-- Departamento -->
+                        <Label text="Departamento *" textFill="#374151">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <ComboBox fx:id="cbDepartamentos" prefHeight="35.0" prefWidth="824.0"
+                                  style="-fx-background-color: #f3f4f6; -fx-border-color: #d1d5db; -fx-border-radius: 5; -fx-background-radius: 5;"
+                                  promptText="Seleccione un departamento"/>
+                        <Region prefHeight="25.0" prefWidth="824.0" />
+                        <!-- Botones de acción -->
+                        <HBox spacing="15" alignment="CENTER_RIGHT">
+                            <children>
+                                <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelarCreacion"
+                                        prefHeight="35.0" prefWidth="120.0"
+                                        style="-fx-background-color: #6b7280; -fx-background-radius: 5;"
+                                        text="Cancelar" textFill="WHITE">
+                                    <font>
+                                        <Font name="System Bold" size="12.0" />
+                                    </font>
+                                </Button>
+                                <Button fx:id="btnCrear" mnemonicParsing="false" onAction="#crearTicket"
+                                        prefHeight="35.0" prefWidth="120.0"
+                                        style="-fx-background-color: #10b981; -fx-background-radius: 5;"
+                                        text="Crear Ticket" textFill="WHITE">
+                                    <font>
+                                        <Font name="System Bold" size="12.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </HBox>
+
+                        <!-- Mensaje de estado -->
+                        <Label fx:id="lblMensaje" textFill="#dc2626" visible="false" wrapText="true"
+                               style="-fx-padding: 10 0 0 0;">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+            </children>
+        </AnchorPane>
+    </center>
+</BorderPane>

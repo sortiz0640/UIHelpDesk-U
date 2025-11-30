@@ -1,99 +1,126 @@
 package cr.ac.ucenfotec.sortiz0640.tl;
 
 import cr.ac.ucenfotec.sortiz0640.bl.logic.GestorApp;
-import cr.ac.ucenfotec.sortiz0640.ui.ViewSesion;
-import cr.ac.ucenfotec.sortiz0640.util.UI;
-import cr.ac.ucenfotec.sortiz0640.util.Validations;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import java.io.IOException;
 
 /**
- * Controlador de autenticación y gestión de sesión del sistema.
- * Maneja el inicio de sesión de usuarios y coordina el acceso a la aplicación principal.
- * Actúa como punto de entrada al sistema después de la autenticación exitosa.
+ * Controlador de autenticación y gestión de sesión del sistema JavaFX.
+ * Maneja el inicio de sesión de usuarios mediante interfaz gráfica.
  *
  * @author Sebastian Ortiz
- * @version 1.0
+ * @version 2.0
  * @since 2025
  */
-
 public class ControllerSesion {
 
-    private UI interfaz;
-    private ViewSesion app;
-    private Validations validator;
+    @FXML private TextField emailField;
+    @FXML private PasswordField passwordField;
+
     private GestorApp gestorApp;
     private ControllerApp controllerApp;
 
     /**
-     * Constructor que inicializa el controlador de sesión.
-     * Configura las dependencias necesarias para la autenticación y navegación.
-     *
-     * @param gestorApp Gestor principal de la aplicación para operaciones de negocio
-     * @param controllerApp Controlador de la aplicación principal al que se accede tras login
+     * Constructor vacío requerido por JavaFX.
      */
+    public ControllerSesion() {
+    }
 
-    public ControllerSesion(GestorApp gestorApp, ControllerApp controllerApp) {
-        this.interfaz = new UI();
-        this.app = new ViewSesion();
-        this.validator = new Validations();
+    /**
+     * Inicializa el controlador con las dependencias necesarias.
+     * Llamado desde Main después de cargar el FXML.
+     *
+     * @param gestorApp Gestor principal de la aplicación
+     * @param controllerApp Controlador principal de la aplicación
+     */
+    public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) {
         this.gestorApp = gestorApp;
-        this.controllerApp = controllerApp;
     }
-
     /**
-     * Inicia el flujo de autenticación del sistema.
-     * Muestra el menú de inicio de sesión y procesa las opciones del usuario
-     * hasta que decida salir o se autentique exitosamente.
-     *
-     * @throws IOException Si ocurre un error de entrada/salida durante la interacción
+     * Maneja el evento de clic en el botón de login.
      */
+    @FXML
+    private void handleLogin() {
+        String correo = emailField.getText().trim();
+        String password = passwordField.getText();
 
-    public void start() throws IOException {
-        int opcion = -1;
-        do {
-            app.mostrarMenu();
-            opcion = interfaz.leerOpcion();
-            procesarOpcion(opcion);
-        } while (opcion != 0);
-    }
-
-    /**
-     * Procesa la opción seleccionada por el usuario en el menú de sesión.
-     *
-     * @param opcion Opción seleccionada (1: Iniciar sesión, 0: Salir)
-     * @throws IOException Si ocurre un error durante el procesamiento
-     */
-
-    public void procesarOpcion(int opcion) throws IOException {
-        switch (opcion) {
-            case 1: iniciarSesion(); break;
-            case 0: break;
-            default: interfaz.imprimirMensaje("[INFO] Opción no válida. Intente nuevamente! \n"); break;
-        }
-    }
-
-    /**
-     * Gestiona el proceso de inicio de sesión del usuario.
-     * Solicita credenciales (correo y contraseña), valida la autenticación
-     * y da acceso a la aplicación principal si las credenciales son correctas.
-     * En caso exitoso, transfiere el control al ControllerApp.
-     *
-     * @throws IOException Si ocurre un error al leer las credenciales o iniciar la aplicación
-     */
-
-    public void iniciarSesion() throws IOException {
-        String correo = validator.correo();
-        String password = validator.password();
-
-        boolean estado = gestorApp.iniciarSesion(correo, password);
-
-        if (!estado) {
-            interfaz.imprimirMensaje("[INFO] El usuario o la contraseña no son correctos. Intente nuevamente\n");
+        // Validar campos vacíos
+        if (correo.isEmpty() || password.isEmpty()) {
+            mostrarAlerta("Error", "Por favor complete todos los campos", Alert.AlertType.ERROR);
             return;
         }
 
-        interfaz.imprimirMensaje("[INFO] Sesión iniciada correctamente\n");
+        // Validar formato de correo
+        if (!correo.contains("@ucenfotec.ac.cr")) {
+            mostrarAlerta("Error", "Debe usar un correo institucional (@ucenfotec.ac.cr)", Alert.AlertType.ERROR);
+            return;
+        }
 
-        controllerApp.start();
+        // Intentar iniciar sesión
+        boolean estado = gestorApp.iniciarSesion(correo, password);
+
+        if (!estado) {
+            mostrarAlerta("Error de autenticación",
+                    "El usuario o la contraseña no son correctos.\nIntente nuevamente.",
+                    Alert.AlertType.ERROR);
+            passwordField.clear();
+            return;
+        }
+
+        // Login exitoso
+        try {
+            abrirVentanaPrincipal();
+        } catch (IOException e) {
+            mostrarAlerta("Error", "No se pudo cargar la aplicación principal", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Abre la ventana principal de la aplicación.
+     */
+    private void abrirVentanaPrincipal() throws IOException {
+        // Cargar la vista principal
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/cr/ac/ucenfotec/sortiz0640/ui/app.fxml")
+        );
+        Parent root = loader.load();
+
+        // Obtener el controlador de la app principal e inyectar dependencias
+        ControllerApp controllerApp = loader.getController();
+        controllerApp.inicializar(gestorApp);
+
+        // Cambiar escena
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        Scene scene = new Scene(root, 1280, 720);
+        stage.setScene(scene);
+        stage.setTitle("Sistema de Tickets - Panel Principal");
+    }
+
+    /**
+     * Muestra una alerta con el mensaje especificado.
+     */
+    private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
+
+    /**
+     * Método que se ejecuta automáticamente después de cargar el FXML
+     * Puede usarse para configuraciones iniciales de la interfaz
+     */
+    @FXML
+    private void initialize() {
+        emailField.requestFocus();
     }
 }

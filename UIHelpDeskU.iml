@@ -9,5 +9,15 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="HelpDeskU" exported="" />
     <orderEntry type="library" exported="" name="commons-validator-1.10.0" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../local_modules/openjfx-25.0.1_windows-x64_bin-sdk.zip!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="javafx.base" level="project" />
   </component>
 </module>

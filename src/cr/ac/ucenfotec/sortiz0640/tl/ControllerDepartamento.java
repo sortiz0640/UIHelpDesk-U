@@ -141,7 +141,7 @@ public class ControllerDepartamento {
      */
 
     public void listarTodos() {
-        ArrayList<String> lista = gestorApp.listarTodosDepartamentos();
+        ArrayList<String> lista = gestorApp.obtenerDepartamentos();
 
         if (lista == null || lista.isEmpty()) {
             interfaz.imprimirMensaje("[INFO] No existen departamentos registrados\n");
@@ -160,7 +160,7 @@ public class ControllerDepartamento {
      */
 
     private void mostrarDepartamentos() {
-        ArrayList<String> departamentos = gestorApp.listarTodosDepartamentos();
+        ArrayList<String> departamentos = gestorApp.obtenerDepartamentos();
 
         if (departamentos == null || departamentos.isEmpty()) {
             interfaz.imprimirMensaje("[INFO] No hay departamentos registrados\n");
