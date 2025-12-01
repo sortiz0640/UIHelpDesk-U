@@ -8,18 +8,12 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0"
-            prefHeight="720.0" prefWidth="1280.0"
-            style="-fx-background-color: #00a6fb;"
-            xmlns="http://javafx.com/javafx/25"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="cr.ac.ucenfotec.sortiz0640.tl.ControllerApp">
+<BorderPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0" prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #00a6fb;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.ucenfotec.sortiz0640.tl.ControllerApp">
     <left>
         <AnchorPane prefHeight="720.0" prefWidth="287.0" style="-fx-background-color: #ffff;" BorderPane.alignment="CENTER">
             <children>
                 <!-- Nombre del usuario logueado -->
-                <Label fx:id="lblUsuario" layoutX="71.0" layoutY="107.0" prefHeight="34.0" prefWidth="171.0"
-                       text="Home, @usuario" textAlignment="CENTER" textOverrun="CLIP" wrapText="true">
+                <Label fx:id="lblUsuario" layoutX="56.0" layoutY="65.0" prefHeight="88.0" prefWidth="178.0" text="Bienvenido! @usuario" textAlignment="CENTER" textOverrun="CLIP" wrapText="true">
                     <font>
                         <Font name="System Bold" size="18.0" />
                     </font>
@@ -32,53 +26,33 @@
                 </Label>
 
                 <!-- Botones de navegación -->
-                <Button fx:id="btnInbox" graphicTextGap="1.0" layoutX="37.0" layoutY="189.0"
-                        minHeight="20.0" mnemonicParsing="false" onAction="#cargarTickets"
-                        prefHeight="31.0" prefWidth="216.0"
-                        style="-fx-background-color: #00a6fb; -fx-background-radius: 5;"
-                        text="Inbox" textFill="WHITE" textOverrun="CLIP">
+                <Button fx:id="btnInbox" graphicTextGap="1.0" layoutX="37.0" layoutY="189.0" minHeight="20.0" mnemonicParsing="false" onAction="#cargarTickets" prefHeight="31.0" prefWidth="216.0" style="-fx-background-color: #00a6fb; -fx-background-radius: 5;" text="Inbox" textFill="WHITE" textOverrun="CLIP">
                     <font>
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Button>
 
-                <Button fx:id="btnCrearTicket" graphicTextGap="1.0" layoutX="37.0" layoutY="241.0"
-                        minHeight="20.0" mnemonicParsing="false" onAction="#abrirCrearTicket"
-                        prefHeight="31.0" prefWidth="216.0"
-                        style="-fx-background-color: #00a6fb; -fx-background-radius: 5;"
-                        text="Crear Ticket" textFill="WHITE" textOverrun="CLIP">
+                <Button fx:id="btnCrearTicket" graphicTextGap="1.0" layoutX="37.0" layoutY="241.0" minHeight="20.0" mnemonicParsing="false" onAction="#abrirCrearTicket" prefHeight="31.0" prefWidth="216.0" style="-fx-background-color: #00a6fb; -fx-background-radius: 5;" text="Crear Ticket" textFill="WHITE" textOverrun="CLIP">
                     <font>
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Button>
 
                 <!-- Botones solo para admin -->
-                <Button fx:id="btnUsuarios" graphicTextGap="1.0" layoutX="37.0" layoutY="290.0"
-                        minHeight="20.0" mnemonicParsing="false" onAction="#abrirUsuarios"
-                        prefHeight="31.0" prefWidth="216.0"
-                        style="-fx-background-color: #00a6fb; -fx-background-radius: 5;"
-                        text="Usuarios" textFill="WHITE" textOverrun="CLIP" visible="false">
+                <Button fx:id="btnUsuarios" graphicTextGap="1.0" layoutX="37.0" layoutY="290.0" minHeight="20.0" mnemonicParsing="false" onAction="#abrirUsuarios" prefHeight="31.0" prefWidth="216.0" style="-fx-background-color: #00a6fb; -fx-background-radius: 5;" text="Usuarios" textFill="WHITE" textOverrun="CLIP" visible="false">
                     <font>
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Button>
 
-                <Button fx:id="btnDepartamentos" graphicTextGap="1.0" layoutX="37.0" layoutY="337.0"
-                        minHeight="20.0" mnemonicParsing="false" onAction="#abrirDepartamentos"
-                        prefHeight="31.0" prefWidth="216.0"
-                        style="-fx-background-color: #00a6fb; -fx-background-radius: 5;"
-                        text="Departamentos" textFill="WHITE" textOverrun="CLIP" visible="false">
+                <Button fx:id="btnDepartamentos" graphicTextGap="1.0" layoutX="37.0" layoutY="337.0" minHeight="20.0" mnemonicParsing="false" onAction="#abrirDepartamentos" prefHeight="31.0" prefWidth="216.0" style="-fx-background-color: #00a6fb; -fx-background-radius: 5;" text="Departamentos" textFill="WHITE" textOverrun="CLIP" visible="false">
                     <font>
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Button>
 
                 <!-- Botón cerrar sesión -->
-                <Button fx:id="btnCerrarSesion" graphicTextGap="1.0" layoutX="37.0" layoutY="600.0"
-                        minHeight="20.0" mnemonicParsing="false" onAction="#cerrarSesion"
-                        prefHeight="31.0" prefWidth="216.0"
-                        style="-fx-background-color: #dc2626; -fx-background-radius: 5;"
-                        text="Cerrar Sesión" textFill="WHITE" textOverrun="CLIP">
+                <Button fx:id="btnCerrarSesion" graphicTextGap="1.0" layoutX="92.0" layoutY="602.0" minHeight="20.0" mnemonicParsing="false" onAction="#cerrarSesion" prefHeight="31.0" prefWidth="106.0" style="-fx-background-color: #dc2626; -fx-background-radius: 5;" text="Cerrar Sesión" textFill="WHITE" textOverrun="CLIP">
                     <font>
                         <Font name="System Bold" size="12.0" />
                     </font>
@@ -99,19 +73,17 @@
     </left>
 
     <center>
-        <AnchorPane prefHeight="720.0" prefWidth="993.0" BorderPane.alignment="CENTER">
+        <AnchorPane prefHeight="720.0" prefWidth="993.0" style="-fx-background-color: #90C2E7;" BorderPane.alignment="CENTER">
             <children>
                 <!-- Título -->
-                <Label fx:id="lblTitulo" layoutX="57.0" layoutY="30.0" text="Mis Tickets" textFill="WHITE">
+                <Label fx:id="lblTitulo" layoutX="57.0" layoutY="30.0" text="Tiquetes" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="24.0" />
                     </font>
                 </Label>
 
                 <!-- Tabla de tickets -->
-                <TableView fx:id="tableTickets" layoutX="57.0" layoutY="80.0"
-                           prefHeight="550.0" prefWidth="884.0"
-                           style="-fx-background-color: white; -fx-background-radius: 10;">
+                <TableView fx:id="tableTickets" layoutX="57.0" layoutY="80.0" prefHeight="550.0" prefWidth="884.0" style="-fx-background-color: white;">
                     <columns>
                         <TableColumn fx:id="colId" prefWidth="60.0" text="ID" />
                         <TableColumn fx:id="colAsunto" prefWidth="150.0" text="Asunto" />
@@ -120,7 +92,7 @@
                         <TableColumn fx:id="colCategoria" prefWidth="100.0" text="Categoría" />
                         <TableColumn fx:id="colEmocion" prefWidth="90.0" text="Emoción" />
                         <TableColumn fx:id="colEstado" prefWidth="100.0" text="Estado" />
-                        <TableColumn fx:id="colAcciones" prefWidth="144.0" text="Acciones" />
+                        <TableColumn fx:id="colAcciones" prefWidth="80.0" text="Acciones" />
                     </columns>
                 </TableView>
             </children>

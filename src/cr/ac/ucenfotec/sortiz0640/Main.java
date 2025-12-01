@@ -1,6 +1,9 @@
 package cr.ac.ucenfotec.sortiz0640;
 
+import cr.ac.ucenfotec.sortiz0640.bl.entities.Departamento;
+import cr.ac.ucenfotec.sortiz0640.bl.entities.Usuario;
 import cr.ac.ucenfotec.sortiz0640.bl.logic.GestorApp;
+import cr.ac.ucenfotec.sortiz0640.bl.util.ListaRoles;
 import cr.ac.ucenfotec.sortiz0640.tl.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -37,17 +40,14 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) throws IOException {
-        // 1. Inicializar el gestor de la aplicación
         gestorApp = new GestorApp();
 
-        // 3. Agregar datos iniciales
         gestorApp.agregarUsuario("Administrador", "SYS ADMIN", "admin@ucenfotec.ac.cr", "adminAdmin", 1);
         gestorApp.agregarUsuario("Sebastian", "Ortiz Vargas", "sortiz0640@ucenfotec.ac.cr", "abc123456", 3);
 
         gestorApp.agregarDepartamento("Escuela de Ingeniería", "Gestión y administración de carreras informáticas", "escuelaingenieria@ucenfotec.ac.cr");
         gestorApp.agregarDepartamento("Escuela de Administración", "Gestión y administración de carreras administrativas", "escuelaadministracion@ucenfotec.ac.cr");
 
-        // 4. Lanzar la aplicación JavaFX
         launch(args);
     }
 }

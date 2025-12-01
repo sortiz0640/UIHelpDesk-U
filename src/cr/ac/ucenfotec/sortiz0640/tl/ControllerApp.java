@@ -1,4 +1,5 @@
 package cr.ac.ucenfotec.sortiz0640.tl;
+
 import cr.ac.ucenfotec.sortiz0640.bl.logic.GestorApp;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -7,7 +8,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -17,7 +25,7 @@ public class ControllerApp {
     @FXML private Label lblTitulo;
     @FXML private Button btnUsuarios;
     @FXML private Button btnDepartamentos;
-    @FXML private TableView<String[]> tableTickets; // CAMBIO IMPORTANTE
+    @FXML private TableView<String[]> tableTickets;
     @FXML private TableColumn<String[], String> colId;
     @FXML private TableColumn<String[], String> colAsunto;
     @FXML private TableColumn<String[], String> colDepartamento;
@@ -56,90 +64,232 @@ public class ControllerApp {
         }
     }
 
-    /**
-     * CONFIGURACIÓN SIMPLIFICADA - Sin clases internas, sin propiedades complejas
-     */
     private void configurarTabla() {
-        // Configurar cada columna para extraer el dato correcto del array
-        colId.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[0]));
-        colAsunto.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[1]));
-        colDepartamento.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[2]));
-        colUsuario.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[3]));
-        colCategoria.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[4]));
-        colEmocion.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[5]));
-        colEstado.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[6]));
+        // Configurar las columnas de datos
+        colId.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 0 ?
+                    new javafx.beans.property.SimpleStringProperty(row[0]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
 
-        // Configurar botones de acción solo para admin
+        colAsunto.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 1 ?
+                    new javafx.beans.property.SimpleStringProperty(row[1]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        colDepartamento.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 2 ?
+                    new javafx.beans.property.SimpleStringProperty(row[2]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        colUsuario.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 3 ?
+                    new javafx.beans.property.SimpleStringProperty(row[3]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        colCategoria.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 4 ?
+                    new javafx.beans.property.SimpleStringProperty(row[4]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        colEmocion.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 5 ?
+                    new javafx.beans.property.SimpleStringProperty(row[5]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        colEstado.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 6 ?
+                    new javafx.beans.property.SimpleStringProperty(row[6]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        // Configurar columna de acciones
         if (gestorApp.tienePermisosAdmin()) {
-            configurarBotonesAccion();
+            configurarColumnaAcciones();
         } else {
             colAcciones.setVisible(false);
         }
     }
 
     /**
-     * CARGA DIRECTA - Sin transformaciones complicadas
+     * Configura la columna de acciones con botón "Ver"
      */
-    @FXML
-    private void cargarTickets() {
-        ArrayList<String[]> ticketsData;
-
-        if (gestorApp.tienePermisosAdmin()) {
-            ticketsData = gestorApp.obtenerTodosTicketsFormato();
-        } else {
-            String correoUsuario = gestorApp.obtenerCorreoUsuarioActual();
-            ticketsData = gestorApp.obtenerTicketsDelUsuarioFormato(correoUsuario);
-        }
-
-        // Convertir directamente a ObservableList
-        ObservableList<String[]> items = FXCollections.observableArrayList();
-        if (ticketsData != null) {
-            items.addAll(ticketsData);
-        }
-
-        tableTickets.setItems(items);
-        System.out.println("Filas cargadas: " + items.size());
-    }
-
-    /**
-     * Configuración simple de botones
-     */
-    private void configurarBotonesAccion() {
+    private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(param -> new TableCell<String[], Void>() {
-            private final Button btnActualizar = new Button("Actualizar");
-            private final Button btnEliminar = new Button("Eliminar");
+            private final Button btnVer = new Button("Ver");
+            private boolean initialized = false;
 
             {
-                btnActualizar.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-size: 10px;");
-                btnEliminar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-size: 10px;");
-
-                btnActualizar.setOnAction(event -> {
-                    String[] ticket = getTableView().getItems().get(getIndex());
-                    actualizarTicket(ticket[0]); // ID está en posición 0
-                });
-
-                btnEliminar.setOnAction(event -> {
-                    String[] ticket = getTableView().getItems().get(getIndex());
-                    eliminarTicket(ticket[0]); // ID está en posición 0
-                });
+                if (!initialized) {
+                    btnVer.setStyle("-fx-background-color: #00a6fb; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
+                    btnVer.setOnAction(event -> {
+                        String[] ticket = getTableView().getItems().get(getIndex());
+                        if (ticket != null && ticket.length > 0) {
+                            mostrarDetallesTicket(ticket[0]);
+                        }
+                    });
+                    initialized = true;
+                }
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
+                if (empty || getIndex() >= getTableView().getItems().size()) {
                     setGraphic(null);
                 } else {
-                    javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox(5);
-                    hbox.getChildren().addAll(btnActualizar, btnEliminar);
-                    setGraphic(hbox);
+                    setGraphic(btnVer);
                 }
             }
         });
     }
 
-    // Los demás métodos (actualizarTicket, eliminarTicket, etc.) se mantienen igual
-    private void actualizarTicket(String ticketId) {
+    /**
+     * Muestra los detalles del ticket en una ventana emergente
+     */
+    private void mostrarDetallesTicket(String ticketId) {
+        try {
+            // Obtener detalles del ticket
+            // Si tu GestorApp no tiene obtenerDetallesTicket, puedes usar los datos existentes
+            // Buscar el ticket en la tabla actual
+            String[] ticketData = null;
+            for (String[] ticket : tableTickets.getItems()) {
+                if (ticket[0].equals(ticketId)) {
+                    ticketData = ticket;
+                    break;
+                }
+            }
+
+            if (ticketData == null) {
+                mostrarAlerta("Error", "No se encontró el ticket seleccionado", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // Crear ventana emergente
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initStyle(StageStyle.UTILITY);
+            dialog.setTitle("Detalles del Ticket #" + ticketId);
+
+            // Crear layout principal
+            VBox mainVBox = new VBox(20);
+            mainVBox.setPadding(new Insets(20));
+            mainVBox.setStyle("-fx-background-color: #f8fafc;");
+            mainVBox.setPrefWidth(500);
+
+            // Título
+            Label title = new Label("Detalles del Ticket");
+            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e40af;");
+
+            // Grid para detalles
+            GridPane grid = new GridPane();
+            grid.setVgap(10);
+            grid.setHgap(15);
+            grid.setPadding(new Insets(10));
+
+            // Añadir detalles al grid
+            String[] labels = {"ID:", "Asunto:", "Departamento:", "Usuario:",
+                    "Categoría:", "Emoción:", "Estado:"};
+
+            for (int i = 0; i < labels.length && i < ticketData.length; i++) {
+                Label label = new Label(labels[i]);
+                label.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+
+                Label value = new Label(ticketData[i] != null ? ticketData[i] : "N/A");
+                value.setWrapText(true);
+                value.setStyle("-fx-text-fill: #6b7280;");
+
+                grid.add(label, 0, i);
+                grid.add(value, 1, i);
+
+                // Hacer que la descripción ocupe más espacio si es necesario
+                if (labels[i].equals("Asunto:")) {
+                    GridPane.setColumnSpan(value, 2);
+                }
+            }
+
+            // Área para descripción adicional
+            Label descLabel = new Label("Descripción:");
+            descLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+
+            TextArea descArea = new TextArea("Descripción detallada del ticket #" + ticketId +
+                    "\n\nEste es un ejemplo de descripción completa.");
+            descArea.setWrapText(true);
+            descArea.setEditable(false);
+            descArea.setPrefHeight(100);
+            descArea.setStyle("-fx-background-color: #f3f4f6; -fx-border-color: #d1d5db;");
+
+            grid.add(descLabel, 0, labels.length);
+            grid.add(descArea, 0, labels.length + 1);
+            GridPane.setColumnSpan(descArea, 2);
+
+            // Panel de botones (solo para admin)
+            HBox buttonPanel = new HBox(15);
+            buttonPanel.setAlignment(Pos.CENTER_RIGHT);
+            buttonPanel.setPadding(new Insets(20, 0, 0, 0));
+
+            if (gestorApp.tienePermisosAdmin()) {
+                Button btnActualizar = new Button("Actualizar Estado");
+                btnActualizar.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-padding: 8 15;");
+                btnActualizar.setOnAction(e -> {
+                    dialog.close();
+                    actualizarEstadoTicket(ticketId);
+                });
+
+                Button btnEliminar = new Button("Eliminar");
+                btnEliminar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-padding: 8 15;");
+                btnEliminar.setOnAction(e -> {
+                    dialog.close();
+                    eliminarTicket(ticketId);
+                });
+
+                buttonPanel.getChildren().addAll(btnActualizar, btnEliminar);
+            }
+
+            // Botón cerrar
+            Button btnCerrar = new Button("Cerrar");
+            btnCerrar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 8 15;");
+            btnCerrar.setOnAction(e -> dialog.close());
+
+            HBox closePanel = new HBox();
+            closePanel.getChildren().add(btnCerrar);
+            closePanel.setAlignment(Pos.CENTER_LEFT);
+
+            // Si no es admin, solo mostrar botón cerrar
+            if (!gestorApp.tienePermisosAdmin()) {
+                buttonPanel.getChildren().add(btnCerrar);
+            } else {
+                // Para admin, agregar panel de cierre también
+                VBox finalLayout = new VBox(20);
+                finalLayout.getChildren().addAll(title, grid, buttonPanel, closePanel);
+                mainVBox.getChildren().addAll(finalLayout);
+            }
+
+            // Configurar escena
+            Scene scene = new Scene(mainVBox);
+            dialog.setScene(scene);
+            dialog.setResizable(false);
+            dialog.showAndWait();
+
+        } catch (Exception e) {
+            mostrarAlerta("Error", "No se pudo mostrar los detalles del ticket", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+    private void actualizarEstadoTicket(String ticketId) {
         ChoiceDialog<String> dialog = new ChoiceDialog<>("EN_PROGRESO", "EN_PROGRESO", "RESUELTO");
         dialog.setTitle("Actualizar Estado");
         dialog.setHeaderText("Ticket ID: " + ticketId);
@@ -168,7 +318,29 @@ public class ControllerApp {
         });
     }
 
-    // Los demás métodos (abrirCrearTicket, cerrarSesion, etc.) se mantienen igual
+    @FXML
+    private void cargarTickets() {
+        ArrayList<String[]> ticketsData;
+
+        if (gestorApp.tienePermisosAdmin()) {
+            ticketsData = gestorApp.obtenerTodosTicketsFormato();
+        } else {
+            String correoUsuario = gestorApp.obtenerCorreoUsuarioActual();
+            ticketsData = gestorApp.obtenerTicketsDelUsuarioFormato(correoUsuario);
+        }
+
+        ObservableList<String[]> items = FXCollections.observableArrayList();
+        if (ticketsData != null) {
+            items.addAll(ticketsData);
+        }
+
+        tableTickets.setItems(items);
+
+        // Forzar actualización de las celdas
+        tableTickets.refresh();
+    }
+
+    // Los demás métodos se mantienen igual
     @FXML
     private void abrirCrearTicket() {
         try {
@@ -211,7 +383,6 @@ public class ControllerApp {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/ucenfotec/sortiz0640/ui/sesion.fxml"));
         Parent root = loader.load();
 
-        // Re-inyectar dependencias en el controlador de sesión
         ControllerSesion controllerSesion = loader.getController();
         controllerSesion.inicializar(gestorApp, this);
 
@@ -230,33 +401,17 @@ public class ControllerApp {
         alert.showAndWait();
     }
 
-    public void recargarTickets() {
-        cargarTickets();
-    }
-
     @FXML
     private void abrirUsuarios() {
-        try {
-            mostrarAlerta("Funcionalidad en desarrollo",
-                    "La gestión de usuarios estará disponible próximamente",
-                    Alert.AlertType.INFORMATION);
-
-        } catch (Exception e) {
-            mostrarAlerta("Error", "No se pudo abrir la gestión de usuarios", Alert.AlertType.ERROR);
-            e.printStackTrace();
-        }
+        mostrarAlerta("Funcionalidad en desarrollo",
+                "La gestión de usuarios estará disponible próximamente",
+                Alert.AlertType.INFORMATION);
     }
 
     @FXML
     private void abrirDepartamentos() {
-        try {
-            mostrarAlerta("Funcionalidad en desarrollo",
-                    "La gestión de departamentos estará disponible próximamente",
-                    Alert.AlertType.INFORMATION);
-
-        } catch (Exception e) {
-            mostrarAlerta("Error", "No se pudo abrir la gestión de departamentos", Alert.AlertType.ERROR);
-            e.printStackTrace();
-        }
+        mostrarAlerta("Funcionalidad en desarrollo",
+                "La gestión de departamentos estará disponible próximamente",
+                Alert.AlertType.INFORMATION);
     }
 }

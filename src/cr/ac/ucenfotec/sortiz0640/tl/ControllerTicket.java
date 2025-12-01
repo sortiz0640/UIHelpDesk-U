@@ -43,7 +43,6 @@ public class ControllerTicket {
 
     @FXML
     private void initialize() {
-        // Se ejecuta automáticamente después de cargar el FXML
     }
 
     private void configurarInterfaz() {
@@ -58,7 +57,7 @@ public class ControllerTicket {
 
             ArrayList<String> departamentos = gestorApp.obtenerDepartamentos();
 
-            cbDepartamentos.getItems().clear(); // Siempre limpio antes de cargar
+            cbDepartamentos.getItems().clear();
 
             if (departamentos != null && !departamentos.isEmpty()) {
 
@@ -97,12 +96,12 @@ public class ControllerTicket {
         String descripcion = txtDescripcion.getText().trim();
         String departamento = cbDepartamentos.getValue();
 
-        String resultado = gestorApp.crearTicket(asunto, descripcion, departamento);
+        boolean resultado = gestorApp.crearTicket(asunto, descripcion, departamento);
 
-        if (resultado.startsWith("[INFO]")) {
+        if (resultado) {
             regresarAlHome();
         } else {
-            mostrarMensaje(resultado);
+            mostrarMensaje("Ha ocurrido un error. El ticket no se ha podido crear. Intente nuevamente");
         }
     }
 
