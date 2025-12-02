@@ -1,9 +1,6 @@
 package cr.ac.ucenfotec.sortiz0640;
 
-import cr.ac.ucenfotec.sortiz0640.bl.entities.Departamento;
-import cr.ac.ucenfotec.sortiz0640.bl.entities.Usuario;
 import cr.ac.ucenfotec.sortiz0640.bl.logic.GestorApp;
-import cr.ac.ucenfotec.sortiz0640.bl.util.ListaRoles;
 import cr.ac.ucenfotec.sortiz0640.tl.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

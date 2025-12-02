@@ -162,8 +162,6 @@ public class ControllerApp {
     private void mostrarDetallesTicket(String ticketId) {
         try {
             // Obtener detalles del ticket
-            // Si tu GestorApp no tiene obtenerDetallesTicket, puedes usar los datos existentes
-            // Buscar el ticket en la tabla actual
             String[] ticketData = null;
             for (String[] ticket : tableTickets.getItems()) {
                 if (ticket[0].equals(ticketId)) {
@@ -203,20 +201,50 @@ public class ControllerApp {
             String[] labels = {"ID:", "Asunto:", "Departamento:", "Usuario:",
                     "Categoría:", "Emoción:", "Estado:"};
 
+            // Variables para elementos que necesitamos referenciar luego
+            ComboBox<String> estadoComboBox = null;
+            int estadoRowIndex = -1;
+
             for (int i = 0; i < labels.length && i < ticketData.length; i++) {
                 Label label = new Label(labels[i]);
                 label.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
 
-                Label value = new Label(ticketData[i] != null ? ticketData[i] : "N/A");
-                value.setWrapText(true);
-                value.setStyle("-fx-text-fill: #6b7280;");
+                // Para el estado, si es admin, creamos un ComboBox en lugar de un Label
+                if (i == 6 && gestorApp.tienePermisosAdmin()) { // Estado está en posición 6
+                    estadoRowIndex = i;
+                    estadoComboBox = new ComboBox<>();
+                    estadoComboBox.getItems().addAll("EN_PROGRESO", "RESUELTO");
 
-                grid.add(label, 0, i);
-                grid.add(value, 1, i);
+                    // Establecer el valor actual basado en los datos del ticket
+                    String estadoActual = ticketData[i];
+                    if (estadoActual != null) {
+                        if (estadoActual.equals("1") || estadoActual.equalsIgnoreCase("EN_PROGRESO")) {
+                            estadoComboBox.setValue("EN_PROGRESO");
+                        } else if (estadoActual.equals("2") || estadoActual.equalsIgnoreCase("RESUELTO")) {
+                            estadoComboBox.setValue("RESUELTO");
+                        } else {
+                            estadoComboBox.setValue(estadoActual);
+                        }
+                    } else {
+                        estadoComboBox.setValue("EN_PROGRESO");
+                    }
 
-                // Hacer que la descripción ocupe más espacio si es necesario
-                if (labels[i].equals("Asunto:")) {
-                    GridPane.setColumnSpan(value, 2);
+                    estadoComboBox.setPrefWidth(150);
+
+                    grid.add(label, 0, i);
+                    grid.add(estadoComboBox, 1, i);
+                } else {
+                    Label value = new Label(ticketData[i] != null ? ticketData[i] : "N/A");
+                    value.setWrapText(true);
+                    value.setStyle("-fx-text-fill: #6b7280;");
+
+                    grid.add(label, 0, i);
+                    grid.add(value, 1, i);
+
+                    // Hacer que la descripción ocupe más espacio si es necesario
+                    if (labels[i].equals("Asunto:")) {
+                        GridPane.setColumnSpan(value, 2);
+                    }
                 }
             }
 
@@ -231,8 +259,9 @@ public class ControllerApp {
             descArea.setPrefHeight(100);
             descArea.setStyle("-fx-background-color: #f3f4f6; -fx-border-color: #d1d5db;");
 
-            grid.add(descLabel, 0, labels.length);
-            grid.add(descArea, 0, labels.length + 1);
+            int descRow = labels.length;
+            grid.add(descLabel, 0, descRow);
+            grid.add(descArea, 0, descRow + 1);
             GridPane.setColumnSpan(descArea, 2);
 
             // Panel de botones (solo para admin)
@@ -243,9 +272,17 @@ public class ControllerApp {
             if (gestorApp.tienePermisosAdmin()) {
                 Button btnActualizar = new Button("Actualizar Estado");
                 btnActualizar.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-padding: 8 15;");
+
+                ComboBox<String> finalEstadoComboBox = estadoComboBox;
                 btnActualizar.setOnAction(e -> {
-                    dialog.close();
-                    actualizarEstadoTicket(ticketId);
+                    if (finalEstadoComboBox != null) {
+                        String nuevoEstado = finalEstadoComboBox.getValue();
+                        int estadoNum = nuevoEstado.equals("EN_PROGRESO") ? 1 : 2;
+                        String resultado = gestorApp.actualizarEstadoTicket(ticketId, estadoNum);
+                        mostrarAlerta("Actualización", resultado, Alert.AlertType.INFORMATION);
+                        dialog.close();
+                        cargarTickets(); // Recargar la tabla
+                    }
                 });
 
                 Button btnEliminar = new Button("Eliminar");
@@ -267,15 +304,15 @@ public class ControllerApp {
             closePanel.getChildren().add(btnCerrar);
             closePanel.setAlignment(Pos.CENTER_LEFT);
 
-            // Si no es admin, solo mostrar botón cerrar
-            if (!gestorApp.tienePermisosAdmin()) {
-                buttonPanel.getChildren().add(btnCerrar);
-            } else {
-                // Para admin, agregar panel de cierre también
-                VBox finalLayout = new VBox(20);
-                finalLayout.getChildren().addAll(title, grid, buttonPanel, closePanel);
-                mainVBox.getChildren().addAll(finalLayout);
+            // Agregar elementos al layout principal
+            mainVBox.getChildren().add(title);
+            mainVBox.getChildren().add(grid);
+
+            if (gestorApp.tienePermisosAdmin()) {
+                mainVBox.getChildren().add(buttonPanel);
             }
+
+            mainVBox.getChildren().add(closePanel);
 
             // Configurar escena
             Scene scene = new Scene(mainVBox);
@@ -287,20 +324,6 @@ public class ControllerApp {
             mostrarAlerta("Error", "No se pudo mostrar los detalles del ticket", Alert.AlertType.ERROR);
             e.printStackTrace();
         }
-    }
-
-    private void actualizarEstadoTicket(String ticketId) {
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("EN_PROGRESO", "EN_PROGRESO", "RESUELTO");
-        dialog.setTitle("Actualizar Estado");
-        dialog.setHeaderText("Ticket ID: " + ticketId);
-        dialog.setContentText("Seleccione el nuevo estado:");
-
-        dialog.showAndWait().ifPresent(estado -> {
-            int estadoNum = estado.equals("EN_PROGRESO") ? 1 : 2;
-            String resultado = gestorApp.actualizarEstadoTicket(ticketId, estadoNum);
-            mostrarAlerta("Actualización", resultado, Alert.AlertType.INFORMATION);
-            cargarTickets(); // Recargar
-        });
     }
 
     private void eliminarTicket(String ticketId) {
