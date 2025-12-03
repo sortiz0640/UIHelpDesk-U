@@ -1,181 +1,377 @@
 package cr.ac.ucenfotec.sortiz0640.tl;
 
 import cr.ac.ucenfotec.sortiz0640.bl.logic.GestorApp;
-import cr.ac.ucenfotec.sortiz0640.ui.ViewUsuario;
-import cr.ac.ucenfotec.sortiz0640.util.UI;
-import cr.ac.ucenfotec.sortiz0640.util.Validations;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- * Controlador de gestión de usuarios del sistema.
- * Maneja todas las operaciones relacionadas con usuarios: registro, eliminación,
- * consultas y listados. Valida permisos administrativos para operaciones protegidas.
- *
- * @author Sebastian Ortiz
- * @version 1.0
- * @since 2025
- */
-
 public class ControllerUsuario {
 
-    private UI interfaz;
-    private ViewUsuario app;
+    @FXML private Label lblUsuario;
+    @FXML private Label lblTitulo;
+    @FXML private TableView<String[]> tableUsuarios;
+    @FXML private TableColumn<String[], String> colNombre;
+    @FXML private TableColumn<String[], String> colApellidos;
+    @FXML private TableColumn<String[], String> colCorreo;
+    @FXML private TableColumn<String[], String> colRol;
+    @FXML private TableColumn<String[], Void> colAcciones;
+
     private GestorApp gestorApp;
-    private Validations validator;
+    private ControllerApp controllerApp;
 
-    /**
-     * Constructor que inicializa el controlador de usuarios.
-     *
-     * @param gestorApp Gestor principal para operaciones de negocio relacionadas con usuarios
-     */
-
-    public ControllerUsuario(GestorApp gestorApp) {
-        this.interfaz = new UI();
-        this.app = new ViewUsuario();
+    public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) {
         this.gestorApp = gestorApp;
-        this.validator = new Validations();
+        this.controllerApp = controllerApp;
+        configurarInterfaz();
+        configurarTabla();
+        cargarUsuarios();
+    }
+
+    @FXML
+    private void initialize() {
+        // JavaFX llama esto automáticamente
+    }
+
+    private void configurarInterfaz() {
+        String correoUsuario = gestorApp.obtenerCorreoUsuarioActual();
+        lblUsuario.setText("Usuarios, @" + correoUsuario.split("@")[0]);
+        lblTitulo.setText("Gestión de Usuarios");
+    }
+
+    private void configurarTabla() {
+        // Configurar las columnas de datos
+        colNombre.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 0 ?
+                    new javafx.beans.property.SimpleStringProperty(row[0]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        colApellidos.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 1 ?
+                    new javafx.beans.property.SimpleStringProperty(row[1]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        colCorreo.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 2 ?
+                    new javafx.beans.property.SimpleStringProperty(row[2]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        colRol.setCellValueFactory(data -> {
+            String[] row = data.getValue();
+            return row != null && row.length > 3 ?
+                    new javafx.beans.property.SimpleStringProperty(row[3]) :
+                    new javafx.beans.property.SimpleStringProperty("");
+        });
+
+        // Configurar columna de acciones
+        configurarColumnaAcciones();
     }
 
     /**
-     * Inicia el flujo de gestión de usuarios.
-     * Muestra el menú de usuarios y procesa las opciones hasta que el usuario
-     * decida regresar al menú principal.
-     *
-     * @throws IOException Si ocurre un error de entrada/salida durante la navegación
+     * Configura la columna de acciones con botones "Ver" y "Eliminar"
      */
+    private void configurarColumnaAcciones() {
+        colAcciones.setCellFactory(param -> new TableCell<String[], Void>() {
+            private final Button btnVer = new Button("Ver");
+            private final Button btnEliminar = new Button("Eliminar");
+            private final HBox buttonBox = new HBox(5, btnVer, btnEliminar);
+            private boolean initialized = false;
 
-    public void start() throws IOException {
-        int opcion = -1;
-        do {
-            app.mostrarMenu();
-            opcion = interfaz.leerOpcion();
-            procesarOpcion(opcion);
-        } while (opcion != 0);
+            {
+                if (!initialized) {
+                    btnVer.setStyle("-fx-background-color: #00a6fb; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
+                    btnEliminar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
+
+                    btnVer.setOnAction(event -> {
+                        String[] usuario = getTableView().getItems().get(getIndex());
+                        if (usuario != null && usuario.length > 2) {
+                            mostrarDetallesUsuario(usuario[2]); // Correo está en posición 2
+                        }
+                    });
+
+                    btnEliminar.setOnAction(event -> {
+                        String[] usuario = getTableView().getItems().get(getIndex());
+                        if (usuario != null && usuario.length > 2) {
+                            eliminarUsuario(usuario[2]); // Correo está en posición 2
+                        }
+                    });
+
+                    initialized = true;
+                }
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getIndex() >= getTableView().getItems().size()) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(buttonBox);
+                }
+            }
+        });
     }
 
     /**
-     * Procesa la opción seleccionada por el usuario en el menú de gestión de usuarios.
-     *
-     * @param opcion Opción seleccionada del menú
-     *               (1: Registrar, 2: Eliminar, 3: Buscar por correo,
-     *                4: Listar todos, 0: Regresar)
-     * @throws IOException Si ocurre un error durante el procesamiento
+     * Muestra los detalles del usuario en una ventana emergente
      */
+    private void mostrarDetallesUsuario(String correoUsuario) {
+        try {
+            // Obtener detalles del usuario
+            String[] usuarioData = gestorApp.obtenerDetallesUsuario(correoUsuario);
 
-    public void procesarOpcion(int opcion) throws IOException {
-        switch (opcion) {
-            case 1: registrar(); break;
-            case 2: eliminar(); break;
-            case 3: listarPorCorreo(); break;
-            case 4: listarTodos(); break;
-            case 0: break;
-            default: interfaz.imprimirMensaje("[INFO] Opción no válida. Intente nuevamente! \n");
+            if (usuarioData == null) {
+                mostrarAlerta("Error", "No se encontró el usuario", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // Crear ventana emergente
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initStyle(StageStyle.UTILITY);
+            dialog.setTitle("Detalles del Usuario: " + usuarioData[2]);
+
+            // Crear layout principal
+            VBox mainVBox = new VBox(20);
+            mainVBox.setPadding(new Insets(20));
+            mainVBox.setStyle("-fx-background-color: #f8fafc;");
+            mainVBox.setPrefWidth(400);
+
+            // Título
+            Label title = new Label("Detalles del Usuario");
+            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e40af;");
+
+            // Grid para detalles
+            GridPane grid = new GridPane();
+            grid.setVgap(10);
+            grid.setHgap(15);
+            grid.setPadding(new Insets(10));
+
+            // Añadir detalles al grid
+            String[] labels = {"Nombre:", "Apellidos:", "Correo:", "Rol:"};
+
+            for (int i = 0; i < labels.length && i < usuarioData.length; i++) {
+                Label label = new Label(labels[i]);
+                label.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+
+                Label value = new Label(usuarioData[i] != null ? usuarioData[i] : "N/A");
+                value.setWrapText(true);
+                value.setStyle("-fx-text-fill: #6b7280;");
+
+                grid.add(label, 0, i);
+                grid.add(value, 1, i);
+            }
+
+            // Botón cerrar
+            Button btnCerrar = new Button("Cerrar");
+            btnCerrar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 8 15;");
+            btnCerrar.setOnAction(e -> dialog.close());
+
+            HBox buttonPanel = new HBox();
+            buttonPanel.getChildren().add(btnCerrar);
+            buttonPanel.setAlignment(Pos.CENTER_RIGHT);
+
+            // Agregar elementos al layout principal
+            mainVBox.getChildren().addAll(title, grid, buttonPanel);
+
+            // Configurar escena
+            Scene scene = new Scene(mainVBox);
+            dialog.setScene(scene);
+            dialog.setResizable(false);
+            dialog.showAndWait();
+
+        } catch (Exception e) {
+            mostrarAlerta("Error", "No se pudo mostrar los detalles del usuario", Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Registra un nuevo usuario en el sistema.
-     * Solicita y valida todos los datos necesarios (nombre, apellidos, correo, contraseña, rol).
-     * Requiere permisos de administrador para ejecutarse.
-     *
-     * @throws IOException Si ocurre un error al leer los datos del usuario
-     */
+    private void eliminarUsuario(String correoUsuario) {
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar eliminación");
+        confirmacion.setHeaderText("¿Está seguro de eliminar el usuario: " + correoUsuario + "?");
+        confirmacion.setContentText("Esta acción no se puede deshacer. Se eliminarán todos los tickets asociados.");
 
-    public void registrar() throws IOException {
-        if (!gestorApp.tienePermisosAdmin()) {
-            interfaz.imprimirMensaje("[INFO] El usuario no tiene permisos para ejecutar esta opción\n");
-            return;
-        }
-
-        String nombre = validator.nombre();
-        String apellidos = validator.apellidos();
-        String correo = validator.correo();
-        String password = validator.password();
-        int rol = validator.rol();
-
-        interfaz.imprimirMensaje(gestorApp.agregarUsuario(nombre, apellidos, correo, password, rol));
+        confirmacion.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                String resultado = gestorApp.eliminarUsuario(correoUsuario);
+                mostrarAlerta("Eliminación", resultado, Alert.AlertType.INFORMATION);
+                cargarUsuarios(); // Recargar
+            }
+        });
     }
 
-    /**
-     * Elimina un usuario del sistema por su correo electrónico.
-     * Muestra la lista de usuarios registrados antes de solicitar el correo a eliminar.
-     * Requiere permisos de administrador para ejecutarse.
-     *
-     * @throws IOException Si ocurre un error al leer el correo del usuario
-     */
+    @FXML
+    private void cargarUsuarios() {
+        ArrayList<String[]> usuariosData = gestorApp.obtenerTodosUsuariosFormato();
 
-    public void eliminar() throws IOException {
-        if (!gestorApp.tienePermisosAdmin()) {
-            interfaz.imprimirMensaje("[INFO] El usuario no tiene permisos para ejecutar esta opción\n");
-            return;
+        ObservableList<String[]> items = FXCollections.observableArrayList();
+        if (usuariosData != null) {
+            items.addAll(usuariosData);
         }
 
-        interfaz.imprimirMensaje("\n[INFO] Usuarios registrados:\n");
-        mostrarUsuarios();
-
-        String correo = validator.correo();
-        interfaz.imprimirMensaje(gestorApp.eliminarUsuario(correo));
+        tableUsuarios.setItems(items);
+        tableUsuarios.refresh();
     }
 
-    /**
-     * Lista la información de un usuario específico por su correo electrónico.
-     * Requiere permisos de administrador para ejecutarse.
-     *
-     * @throws IOException Si ocurre un error al leer el correo del usuario
-     */
+    @FXML
+    private void abrirAgregarUsuario() {
+        try {
+            // Crear ventana emergente para agregar usuario
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initStyle(StageStyle.UTILITY);
+            dialog.setTitle("Agregar Nuevo Usuario");
 
-    public void listarPorCorreo() throws IOException {
-        if (!gestorApp.tienePermisosAdmin()) {
-            interfaz.imprimirMensaje("[INFO] El usuario no tiene permisos para ejecutar esta opción\n");
-            return;
+            // Crear formulario
+            VBox mainVBox = new VBox(15);
+            mainVBox.setPadding(new Insets(20));
+            mainVBox.setStyle("-fx-background-color: #f8fafc;");
+            mainVBox.setPrefWidth(400);
+
+            Label title = new Label("Nuevo Usuario");
+            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e40af;");
+
+            GridPane form = new GridPane();
+            form.setVgap(10);
+            form.setHgap(10);
+
+            TextField txtNombre = new TextField();
+            txtNombre.setPromptText("Nombre");
+            TextField txtApellidos = new TextField();
+            txtApellidos.setPromptText("Apellidos");
+            TextField txtCorreo = new TextField();
+            txtCorreo.setPromptText("correo@ucenfotec.ac.cr");
+            PasswordField txtPassword = new PasswordField();
+            txtPassword.setPromptText("Contraseña");
+
+            ComboBox<String> cbRol = new ComboBox<>();
+            cbRol.getItems().addAll("ADMIN", "ESTUDIANTE", "FUNCIONARIO");
+            cbRol.setValue("ESTUDIANTE");
+
+            form.add(new Label("Nombre:"), 0, 0);
+            form.add(txtNombre, 1, 0);
+            form.add(new Label("Apellidos:"), 0, 1);
+            form.add(txtApellidos, 1, 1);
+            form.add(new Label("Correo:"), 0, 2);
+            form.add(txtCorreo, 1, 2);
+            form.add(new Label("Contraseña:"), 0, 3);
+            form.add(txtPassword, 1, 3);
+            form.add(new Label("Rol:"), 0, 4);
+            form.add(cbRol, 1, 4);
+
+            Label lblError = new Label();
+            lblError.setStyle("-fx-text-fill: #dc2626;");
+
+            HBox buttonBox = new HBox(10);
+            buttonBox.setAlignment(Pos.CENTER_RIGHT);
+
+            Button btnCancelar = new Button("Cancelar");
+            btnCancelar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white;");
+            btnCancelar.setOnAction(e -> dialog.close());
+
+            Button btnGuardar = new Button("Guardar");
+            btnGuardar.setStyle("-fx-background-color: #10b981; -fx-text-fill: white;");
+            btnGuardar.setOnAction(e -> {
+                if (validarFormulario(txtNombre, txtApellidos, txtCorreo, txtPassword, lblError)) {
+                    int rolNum = cbRol.getValue().equals("ADMIN") ? 1 :
+                            cbRol.getValue().equals("ESTUDIANTE") ? 2 : 3;
+
+                    String resultado = gestorApp.agregarUsuario(
+                            txtNombre.getText(),
+                            txtApellidos.getText(),
+                            txtCorreo.getText(),
+                            txtPassword.getText(),
+                            rolNum
+                    );
+
+                    mostrarAlerta("Resultado", resultado, Alert.AlertType.INFORMATION);
+                    dialog.close();
+                    cargarUsuarios();
+                }
+            });
+
+            buttonBox.getChildren().addAll(btnCancelar, btnGuardar);
+            mainVBox.getChildren().addAll(title, form, lblError, buttonBox);
+
+            Scene scene = new Scene(mainVBox);
+            dialog.setScene(scene);
+            dialog.setResizable(false);
+            dialog.showAndWait();
+
+        } catch (Exception e) {
+            mostrarAlerta("Error", "No se pudo abrir el formulario", Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
-
-        String correo = validator.correo();
-        interfaz.imprimirMensaje("\n" + gestorApp.listarUsuarioPorCorreo(correo));
     }
 
-    /**
-     * Lista todos los usuarios registrados en el sistema.
-     * Muestra un mensaje si no hay usuarios registrados.
-     * Requiere permisos de administrador para ejecutarse.
-     */
-
-    public void listarTodos() {
-        if (!gestorApp.tienePermisosAdmin()) {
-            interfaz.imprimirMensaje("[INFO] El usuario no tiene permisos para ejecutar esta opción\n");
-            return;
+    private boolean validarFormulario(TextField nombre, TextField apellidos,
+                                      TextField correo, PasswordField password,
+                                      Label errorLabel) {
+        if (nombre.getText().trim().isEmpty() || apellidos.getText().trim().isEmpty() ||
+                correo.getText().trim().isEmpty() || password.getText().isEmpty()) {
+            errorLabel.setText("Todos los campos son obligatorios");
+            return false;
         }
 
-        ArrayList<String> lista = gestorApp.listarTodosUsuarios();
-
-        if (lista == null || lista.isEmpty()) {
-            interfaz.imprimirMensaje("[INFO] No existen usuarios registrados\n");
-            return;
+        if (!correo.getText().contains("@ucenfotec.ac.cr")) {
+            errorLabel.setText("Debe usar un correo institucional (@ucenfotec.ac.cr)");
+            return false;
         }
 
-        interfaz.imprimirMensaje("[INFO] Lista de usuarios registrados:\n");
-        for (String usuario : lista) {
-            interfaz.imprimirMensaje(usuario);
+        if (password.getText().length() < 6) {
+            errorLabel.setText("La contraseña debe tener al menos 6 caracteres");
+            return false;
+        }
+
+        errorLabel.setText("");
+        return true;
+    }
+
+    @FXML
+    private void regresarAlHome() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/ucenfotec/sortiz0640/ui/app.fxml"));
+            Parent root = loader.load();
+
+            ControllerApp mainController = loader.getController();
+            mainController.inicializar(gestorApp);
+
+            Stage stage = (Stage) lblUsuario.getScene().getWindow();
+            Scene scene = new Scene(root, 1280, 720);
+            stage.setScene(scene);
+            stage.setTitle("Sistema de Tickets - Panel Principal");
+
+        } catch (IOException e) {
+            mostrarAlerta("Error", "No se pudo regresar al home", Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Método auxiliar privado que muestra todos los usuarios registrados.
-     * Utilizado internamente para mostrar usuarios antes de operaciones como eliminación.
-     */
-
-    private void mostrarUsuarios() {
-        ArrayList<String> usuarios = gestorApp.listarTodosUsuarios();
-
-        if (usuarios == null || usuarios.isEmpty()) {
-            interfaz.imprimirMensaje("[INFO] No hay usuarios registrados\n");
-            return;
-        }
-
-        for (String usuario : usuarios) {
-            interfaz.imprimirMensaje(usuario);
-        }
-        interfaz.imprimirMensaje("\n");
+    private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 }

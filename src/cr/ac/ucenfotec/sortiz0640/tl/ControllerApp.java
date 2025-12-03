@@ -425,15 +425,41 @@ public class ControllerApp {
 
     @FXML
     private void abrirUsuarios() {
-        mostrarAlerta("Funcionalidad en desarrollo",
-                "La gestión de usuarios estará disponible próximamente",
-                Alert.AlertType.INFORMATION);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/ucenfotec/sortiz0640/ui/usuarios.fxml"));
+            Parent root = loader.load();
+
+            ControllerUsuario controllerUsuarios = loader.getController();
+            controllerUsuarios.inicializar(gestorApp, this);
+
+            Stage stage = (Stage) lblUsuario.getScene().getWindow();
+            Scene scene = new Scene(root, 1280, 720);
+            stage.setScene(scene);
+            stage.setTitle("Sistema de Tickets - Gestión de Usuarios");
+
+        } catch (IOException e) {
+            mostrarAlerta("Error", "No se pudo cargar la ventana de usuarios", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void abrirDepartamentos() {
-        mostrarAlerta("Funcionalidad en desarrollo",
-                "La gestión de departamentos estará disponible próximamente",
-                Alert.AlertType.INFORMATION);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/ucenfotec/sortiz0640/ui/departamentos.fxml"));
+            Parent root = loader.load();
+
+            ControllerDepartamento controllerDepartamentos = loader.getController();
+            controllerDepartamentos.inicializar(gestorApp, this);
+
+            Stage stage = (Stage) lblUsuario.getScene().getWindow();
+            Scene scene = new Scene(root, 1280, 720);
+            stage.setScene(scene);
+            stage.setTitle("Sistema de Tickets - Gestión de Departamentos");
+
+        } catch (IOException e) {
+            mostrarAlerta("Error", "No se pudo cargar la ventana de departamentos", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 }
