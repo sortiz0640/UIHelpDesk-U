@@ -252,8 +252,7 @@ public class ControllerApp {
             Label descLabel = new Label("Descripción:");
             descLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
 
-            TextArea descArea = new TextArea("Descripción detallada del ticket #" + ticketId +
-                    "\n\nEste es un ejemplo de descripción completa.");
+            TextArea descArea = new TextArea(ticketData[7]);
             descArea.setWrapText(true);
             descArea.setEditable(false);
             descArea.setPrefHeight(100);
