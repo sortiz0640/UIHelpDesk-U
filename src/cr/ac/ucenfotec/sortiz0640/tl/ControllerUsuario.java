@@ -43,7 +43,6 @@ public class ControllerUsuario {
 
     @FXML
     private void initialize() {
-        // JavaFX llama esto automáticamente
     }
 
     private void configurarInterfaz() {
