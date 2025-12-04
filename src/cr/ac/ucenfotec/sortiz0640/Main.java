@@ -15,6 +15,7 @@ import java.sql.SQLException;
  * Clase principal de la aplicación JavaFX.
  * Inicializa el sistema y muestra la ventana de login.
  */
+
 public class Main extends Application {
 
     private static GestorApp gestorApp;
