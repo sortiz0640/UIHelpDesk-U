@@ -129,20 +129,34 @@ public class ControllerApp {
      */
     private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(param -> new TableCell<String[], Void>() {
+
             private final Button btnVer = new Button("Ver");
-            private boolean initialized = false;
+            private final Button btnEliminar = new Button("Eliminar");
+            private final HBox contenedor = new HBox(10);
 
             {
-                if (!initialized) {
-                    btnVer.setStyle("-fx-background-color: #00a6fb; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
-                    btnVer.setOnAction(event -> {
-                        String[] ticket = getTableView().getItems().get(getIndex());
-                        if (ticket != null && ticket.length > 0) {
-                            mostrarDetallesTicket(ticket[0]);
-                        }
-                    });
-                    initialized = true;
-                }
+                // Estilos
+                btnVer.setStyle("-fx-background-color: #00a6fb; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
+                btnEliminar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
+                contenedor.setAlignment(Pos.CENTER);
+
+                // Acción Ver
+                btnVer.setOnAction(event -> {
+                    String[] ticket = getTableView().getItems().get(getIndex());
+                    if (ticket != null && ticket.length > 0) {
+                        mostrarDetallesTicket(ticket[0]);
+                    }
+                });
+
+                // Acción Eliminar
+                btnEliminar.setOnAction(event -> {
+                    String[] ticket = getTableView().getItems().get(getIndex());
+                    if (ticket != null && ticket.length > 0) {
+                        eliminarTicket(ticket[0]);
+                    }
+                });
+
+                contenedor.getChildren().addAll(btnVer, btnEliminar);
             }
 
             @Override
@@ -151,11 +165,12 @@ public class ControllerApp {
                 if (empty || getIndex() >= getTableView().getItems().size()) {
                     setGraphic(null);
                 } else {
-                    setGraphic(btnVer);
+                    setGraphic(contenedor);
                 }
             }
         });
     }
+
 
     /**
      * Muestra los detalles del ticket en una ventana emergente
@@ -293,15 +308,7 @@ public class ControllerApp {
                         }
                     }
                 });
-
-                Button btnEliminar = new Button("Eliminar");
-                btnEliminar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-padding: 8 15;");
-                btnEliminar.setOnAction(e -> {
-                    dialog.close();
-                    eliminarTicket(ticketId);
-                });
-
-                buttonPanel.getChildren().addAll(btnActualizar, btnEliminar);
+                buttonPanel.getChildren().add(btnActualizar);
             }
 
             // Botón cerrar
