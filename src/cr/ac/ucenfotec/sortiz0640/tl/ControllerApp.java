@@ -17,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ControllerApp {
@@ -37,7 +38,7 @@ public class ControllerApp {
 
     private GestorApp gestorApp;
 
-    public void inicializar(GestorApp gestorApp) {
+    public void inicializar(GestorApp gestorApp) throws SQLException {
         this.gestorApp = gestorApp;
         configurarInterfaz();
         configurarTabla();
@@ -277,10 +278,19 @@ public class ControllerApp {
                     if (finalEstadoComboBox != null) {
                         String nuevoEstado = finalEstadoComboBox.getValue();
                         int estadoNum = nuevoEstado.equals("EN_PROGRESO") ? 1 : 2;
-                        String resultado = gestorApp.actualizarEstadoTicket(ticketId, estadoNum);
+                        String resultado = null;
+                        try {
+                            resultado = gestorApp.actualizarEstadoTicket(ticketId, estadoNum);
+                        } catch (SQLException ex) {
+                            throw new RuntimeException(ex);
+                        }
                         mostrarAlerta("Actualización", resultado, Alert.AlertType.INFORMATION);
                         dialog.close();
-                        cargarTickets(); // Recargar la tabla
+                        try {
+                            cargarTickets(); // Recargar la tabla
+                        } catch (SQLException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 });
 
@@ -333,15 +343,24 @@ public class ControllerApp {
 
         confirmacion.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                String resultado = gestorApp.eliminarTicket(ticketId);
+                String resultado = null;
+                try {
+                    resultado = gestorApp.eliminarTicket(ticketId);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
                 mostrarAlerta("Eliminación", resultado, Alert.AlertType.INFORMATION);
-                cargarTickets(); // Recargar
+                try {
+                    cargarTickets(); // Recargar
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
 
     @FXML
-    private void cargarTickets() {
+    private void cargarTickets() throws SQLException {
         ArrayList<String[]> ticketsData;
 
         if (gestorApp.tienePermisosAdmin()) {
@@ -380,6 +399,8 @@ public class ControllerApp {
         } catch (IOException e) {
             mostrarAlerta("Error", "No se pudo cargar la ventana de creación de tickets", Alert.AlertType.ERROR);
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -440,6 +461,8 @@ public class ControllerApp {
         } catch (IOException e) {
             mostrarAlerta("Error", "No se pudo cargar la ventana de usuarios", Alert.AlertType.ERROR);
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -460,6 +483,8 @@ public class ControllerApp {
         } catch (IOException e) {
             mostrarAlerta("Error", "No se pudo cargar la ventana de departamentos", Alert.AlertType.ERROR);
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

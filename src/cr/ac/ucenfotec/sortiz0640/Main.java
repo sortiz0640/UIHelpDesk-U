@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * Clase principal de la aplicación JavaFX.
@@ -36,15 +37,8 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException {
         gestorApp = new GestorApp();
-
-        gestorApp.agregarUsuario("Administrador", "SYS ADMIN", "admin@ucenfotec.ac.cr", "adminAdmin", 1);
-        gestorApp.agregarUsuario("Sebastian", "Ortiz Vargas", "sortiz0640@ucenfotec.ac.cr", "abc123456", 3);
-
-        gestorApp.agregarDepartamento("Escuela de Ingeniería", "Gestión y administración de carreras informáticas", "escuelaingenieria@ucenfotec.ac.cr");
-        gestorApp.agregarDepartamento("Escuela de Administración", "Gestión y administración de carreras administrativas", "escuelaadministracion@ucenfotec.ac.cr");
-
         launch(args);
     }
 }

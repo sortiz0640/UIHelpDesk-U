@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -34,7 +35,7 @@ public class ControllerTicket {
     /**
      * Inicializa el controlador con las dependencias necesarias
      */
-    public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) {
+    public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) throws SQLException {
         this.gestorApp = gestorApp;
         this.controllerApp = controllerApp;
         configurarInterfaz();
@@ -52,7 +53,7 @@ public class ControllerTicket {
         }
     }
 
-    private void cargarDepartamentos() {
+    private void cargarDepartamentos() throws SQLException {
         if (gestorApp != null) {
 
             ArrayList<String> departamentos = gestorApp.obtenerDepartamentos();
@@ -74,7 +75,7 @@ public class ControllerTicket {
 
 
     @FXML
-    private void crearTicket() {
+    private void crearTicket() throws SQLException {
         // Validaciones
         if (txtAsunto.getText().trim().isEmpty()) {
             mostrarMensaje("El asunto es obligatorio");
@@ -126,6 +127,8 @@ public class ControllerTicket {
 
         } catch (IOException e) {
             mostrarAlerta("Error", "No se pudo regresar al home", Alert.AlertType.ERROR);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

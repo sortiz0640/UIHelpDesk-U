@@ -17,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ControllerDepartamento {
@@ -32,7 +33,7 @@ public class ControllerDepartamento {
     private GestorApp gestorApp;
     private ControllerApp controllerApp;
 
-    public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) {
+    public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) throws SQLException {
         this.gestorApp = gestorApp;
         this.controllerApp = controllerApp;
         configurarInterfaz();
@@ -214,15 +215,24 @@ public class ControllerDepartamento {
 
         confirmacion.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                String resultado = gestorApp.eliminarDepartamento(correoDepartamento);
+                String resultado = null;
+                try {
+                    resultado = gestorApp.eliminarDepartamento(correoDepartamento);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
                 mostrarAlerta("Eliminación", resultado, Alert.AlertType.INFORMATION);
-                cargarDepartamentos(); // Recargar
+                try {
+                    cargarDepartamentos(); // Recargar
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
 
     @FXML
-    private void cargarDepartamentos() {
+    private void cargarDepartamentos() throws SQLException {
         ArrayList<String[]> departamentosData = gestorApp.obtenerTodosDepartamentosFormato();
 
         ObservableList<String[]> items = FXCollections.observableArrayList();
@@ -286,15 +296,24 @@ public class ControllerDepartamento {
             btnGuardar.setStyle("-fx-background-color: #10b981; -fx-text-fill: white;");
             btnGuardar.setOnAction(e -> {
                 if (validarFormulario(txtNombre, txtCorreo, txtDescripcion, lblError)) {
-                    String resultado = gestorApp.agregarDepartamento(
-                            txtNombre.getText(),
-                            txtDescripcion.getText(),
-                            txtCorreo.getText()
-                    );
+                    String resultado = " ";
+                    try {
+                        resultado = gestorApp.agregarDepartamento(
+                                txtNombre.getText(),
+                                txtDescripcion.getText(),
+                                txtCorreo.getText()
+                        );
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
 
                     mostrarAlerta("Resultado", resultado, Alert.AlertType.INFORMATION);
                     dialog.close();
-                    cargarDepartamentos();
+                    try {
+                        cargarDepartamentos();
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             });
 
@@ -343,7 +362,7 @@ public class ControllerDepartamento {
             stage.setScene(scene);
             stage.setTitle("Sistema de Tickets - Panel Principal");
 
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             mostrarAlerta("Error", "No se pudo regresar al home", Alert.AlertType.ERROR);
             e.printStackTrace();
         }

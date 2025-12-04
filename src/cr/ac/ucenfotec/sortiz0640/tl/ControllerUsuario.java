@@ -17,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ControllerUsuario {
@@ -33,7 +34,7 @@ public class ControllerUsuario {
     private GestorApp gestorApp;
     private ControllerApp controllerApp;
 
-    public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) {
+    public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) throws SQLException {
         this.gestorApp = gestorApp;
         this.controllerApp = controllerApp;
         configurarInterfaz();
@@ -212,15 +213,24 @@ public class ControllerUsuario {
 
         confirmacion.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                String resultado = gestorApp.eliminarUsuario(correoUsuario);
+                String resultado = null;
+                try {
+                    resultado = gestorApp.eliminarUsuario(correoUsuario);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
                 mostrarAlerta("Eliminación", resultado, Alert.AlertType.INFORMATION);
-                cargarUsuarios(); // Recargar
+                try {
+                    cargarUsuarios(); // Recargar
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
 
     @FXML
-    private void cargarUsuarios() {
+    private void cargarUsuarios() throws SQLException {
         ArrayList<String[]> usuariosData = gestorApp.obtenerTodosUsuariosFormato();
 
         ObservableList<String[]> items = FXCollections.observableArrayList();
@@ -295,17 +305,26 @@ public class ControllerUsuario {
                     int rolNum = cbRol.getValue().equals("ADMIN") ? 1 :
                             cbRol.getValue().equals("ESTUDIANTE") ? 2 : 3;
 
-                    String resultado = gestorApp.agregarUsuario(
-                            txtNombre.getText(),
-                            txtApellidos.getText(),
-                            txtCorreo.getText(),
-                            txtPassword.getText(),
-                            rolNum
-                    );
+                    String resultado = null;
+                    try {
+                        resultado = gestorApp.agregarUsuario(
+                                txtNombre.getText(),
+                                txtApellidos.getText(),
+                                txtCorreo.getText(),
+                                txtPassword.getText(),
+                                rolNum
+                        );
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
 
                     mostrarAlerta("Resultado", resultado, Alert.AlertType.INFORMATION);
                     dialog.close();
-                    cargarUsuarios();
+                    try {
+                        cargarUsuarios();
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             });
 
@@ -363,6 +382,8 @@ public class ControllerUsuario {
         } catch (IOException e) {
             mostrarAlerta("Error", "No se pudo regresar al home", Alert.AlertType.ERROR);
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * Controlador de autenticación y gestión de sesión del sistema JavaFX.
@@ -47,7 +48,7 @@ public class ControllerSesion {
      * Maneja el evento de clic en el botón de login.
      */
     @FXML
-    private void handleLogin() {
+    private void handleLogin() throws SQLException {
         String correo = emailField.getText().trim();
         String password = passwordField.getText();
 
@@ -86,7 +87,7 @@ public class ControllerSesion {
     /**
      * Abre la ventana principal de la aplicación.
      */
-    private void abrirVentanaPrincipal() throws IOException {
+    private void abrirVentanaPrincipal() throws IOException, SQLException {
         // Cargar la vista principal
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/cr/ac/ucenfotec/sortiz0640/ui/app.fxml")
