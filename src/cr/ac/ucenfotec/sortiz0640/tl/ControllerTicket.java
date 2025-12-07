@@ -75,7 +75,7 @@ public class ControllerTicket {
 
 
     @FXML
-    private void crearTicket() throws SQLException {
+    private void crearTicket() throws SQLException, ClassNotFoundException {
         // Validaciones
         if (txtAsunto.getText().trim().isEmpty()) {
             mostrarMensaje("El asunto es obligatorio");

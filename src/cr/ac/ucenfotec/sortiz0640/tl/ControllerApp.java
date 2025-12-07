@@ -127,16 +127,18 @@ public class ControllerApp {
     /**
      * Configura la columna de acciones con botón "Ver"
      */
+
     private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(param -> new TableCell<String[], Void>() {
-
             private final Button btnVer = new Button("Ver");
+            private final Button btnBoW = new Button("BoW");
             private final Button btnEliminar = new Button("Eliminar");
-            private final HBox contenedor = new HBox(10);
+            private final HBox contenedor = new HBox(5);
 
             {
                 // Estilos
                 btnVer.setStyle("-fx-background-color: #00a6fb; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
+                btnBoW.setStyle("-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
                 btnEliminar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
                 contenedor.setAlignment(Pos.CENTER);
 
@@ -148,6 +150,14 @@ public class ControllerApp {
                     }
                 });
 
+                // Acción BoW (Bag of Words)
+                btnBoW.setOnAction(event -> {
+                    String[] ticket = getTableView().getItems().get(getIndex());
+                    if (ticket != null && ticket.length > 0) {
+                        mostrarBoWTicket(ticket[0]);
+                    }
+                });
+
                 // Acción Eliminar
                 btnEliminar.setOnAction(event -> {
                     String[] ticket = getTableView().getItems().get(getIndex());
@@ -156,7 +166,7 @@ public class ControllerApp {
                     }
                 });
 
-                contenedor.getChildren().addAll(btnVer, btnEliminar);
+                contenedor.getChildren().addAll(btnVer, btnBoW, btnEliminar);
             }
 
             @Override
@@ -170,6 +180,128 @@ public class ControllerApp {
             }
         });
     }
+
+    /**
+     * Muestra las palabras detonantes (Bag of Words) del ticket
+     */
+    private void mostrarBoWTicket(String ticketId) {
+        try {
+            // Obtener detalles del ticket incluyendo palabras detonantes
+            String[] ticketData = null;
+            for (String[] ticket : tableTickets.getItems()) {
+                if (ticket[0].equals(ticketId)) {
+                    ticketData = ticket;
+                    break;
+                }
+            }
+
+            if (ticketData == null) {
+                mostrarAlerta("Error", "No se encontró el ticket seleccionado", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // Obtener las palabras detonantes del gestor
+            ArrayList<String> palabrasTecnicas = gestorApp.obtenerPalabrasDetonantesTecnicas(ticketId);
+            ArrayList<String> palabrasEmocionales = gestorApp.obtenerPalabrasDetonantesEmocionales(ticketId);
+
+            // Crear ventana emergente
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initStyle(StageStyle.UTILITY);
+            dialog.setTitle("Bag of Words - Ticket #" + ticketId);
+
+            // Crear layout principal
+            VBox mainVBox = new VBox(20);
+            mainVBox.setPadding(new Insets(20));
+            mainVBox.setStyle("-fx-background-color: #f8fafc;");
+            mainVBox.setPrefWidth(500);
+
+            // Título
+            Label title = new Label("Palabras Detonantes del Ticket");
+            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e40af;");
+
+            // Información del ticket
+            Label ticketInfo = new Label("Ticket #" + ticketId + " - " + ticketData[1]);
+            ticketInfo.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #374151;");
+
+            // Contenedor para categorías
+            VBox categoriasContainer = new VBox(15);
+            categoriasContainer.setPadding(new Insets(10));
+
+            // Sección de categoría técnica
+            if (palabrasTecnicas != null && !palabrasTecnicas.isEmpty()) {
+                Label catTecnicaLabel = new Label("Categoría Técnica: " + ticketData[4]);
+                catTecnicaLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e40af; -fx-font-size: 14px;");
+
+                Label palabrasTecLabel = new Label("Palabras detonantes (" + palabrasTecnicas.size() + "):");
+                palabrasTecLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+
+                TextArea palabrasTecArea = new TextArea(String.join(", ", palabrasTecnicas));
+                palabrasTecArea.setWrapText(true);
+                palabrasTecArea.setEditable(false);
+                palabrasTecArea.setPrefHeight(60);
+                palabrasTecArea.setStyle("-fx-background-color: #e0f2fe; -fx-border-color: #7dd3fc;");
+
+                VBox tecnicaBox = new VBox(5, catTecnicaLabel, palabrasTecLabel, palabrasTecArea);
+                tecnicaBox.setPadding(new Insets(10));
+                tecnicaBox.setStyle("-fx-background-color: #f0f9ff; -fx-border-color: #bae6fd; -fx-border-radius: 5; -fx-background-radius: 5;");
+
+                categoriasContainer.getChildren().add(tecnicaBox);
+            } else {
+                Label noTecnicasLabel = new Label("No hay palabras detonantes técnicas");
+                noTecnicasLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic;");
+                categoriasContainer.getChildren().add(noTecnicasLabel);
+            }
+
+            // Sección de categoría emocional
+            if (palabrasEmocionales != null && !palabrasEmocionales.isEmpty()) {
+                Label catEmocionalLabel = new Label("Categoría Emocional: " + ticketData[5]);
+                catEmocionalLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #7c3aed; -fx-font-size: 14px;");
+
+                Label palabrasEmoLabel = new Label("Palabras detonantes (" + palabrasEmocionales.size() + "):");
+                palabrasEmoLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+
+                TextArea palabrasEmoArea = new TextArea(String.join(", ", palabrasEmocionales));
+                palabrasEmoArea.setWrapText(true);
+                palabrasEmoArea.setEditable(false);
+                palabrasEmoArea.setPrefHeight(60);
+                palabrasEmoArea.setStyle("-fx-background-color: #f3e8ff; -fx-border-color: #c4b5fd;");
+
+                VBox emocionalBox = new VBox(5, catEmocionalLabel, palabrasEmoLabel, palabrasEmoArea);
+                emocionalBox.setPadding(new Insets(10));
+                emocionalBox.setStyle("-fx-background-color: #faf5ff; -fx-border-color: #ddd6fe; -fx-border-radius: 5; -fx-background-radius: 5;");
+
+                categoriasContainer.getChildren().add(emocionalBox);
+            } else {
+                Label noEmocionalesLabel = new Label("No hay palabras detonantes emocionales");
+                noEmocionalesLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic;");
+                categoriasContainer.getChildren().add(noEmocionalesLabel);
+            }
+
+            // Botón cerrar
+            Button btnCerrar = new Button("Cerrar");
+            btnCerrar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 8 15;");
+            btnCerrar.setOnAction(e -> dialog.close());
+
+            HBox buttonPanel = new HBox();
+            buttonPanel.getChildren().add(btnCerrar);
+            buttonPanel.setAlignment(Pos.CENTER_RIGHT);
+
+            // Agregar elementos al layout principal
+            mainVBox.getChildren().addAll(title, ticketInfo, categoriasContainer, buttonPanel);
+
+            // Configurar escena
+            Scene scene = new Scene(mainVBox);
+            dialog.setScene(scene);
+            dialog.setResizable(false);
+            dialog.showAndWait();
+
+        } catch (Exception e) {
+            mostrarAlerta("Error", "No se pudo mostrar las palabras detonantes del ticket", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
 
 
     /**

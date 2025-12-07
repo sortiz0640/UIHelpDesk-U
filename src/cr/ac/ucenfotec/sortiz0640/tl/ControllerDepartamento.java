@@ -127,9 +127,9 @@ public class ControllerDepartamento {
     /**
      * Muestra los detalles del departamento en una ventana emergente
      */
+
     private void mostrarDetallesDepartamento(String correoDepartamento) {
         try {
-            // Obtener detalles del departamento
             String[] departamentoData = gestorApp.obtenerDetallesDepartamento(correoDepartamento);
 
             if (departamentoData == null) {
@@ -137,29 +137,24 @@ public class ControllerDepartamento {
                 return;
             }
 
-            // Crear ventana emergente
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.initStyle(StageStyle.UTILITY);
             dialog.setTitle("Detalles del Departamento: " + departamentoData[0]);
 
-            // Crear layout principal
             VBox mainVBox = new VBox(20);
             mainVBox.setPadding(new Insets(20));
             mainVBox.setStyle("-fx-background-color: #f8fafc;");
-            mainVBox.setPrefWidth(500);
+            mainVBox.setPrefWidth(400);
 
-            // Título
             Label title = new Label("Detalles del Departamento");
             title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e40af;");
 
-            // Grid para detalles
             GridPane grid = new GridPane();
             grid.setVgap(10);
             grid.setHgap(15);
             grid.setPadding(new Insets(10));
 
-            // Añadir detalles al grid
             String[] labels = {"Nombre:", "Correo:", "Descripción:"};
 
             for (int i = 0; i < labels.length && i < departamentoData.length; i++) {
@@ -172,8 +167,10 @@ public class ControllerDepartamento {
                     value.setEditable(false);
                     value.setPrefHeight(80);
                     value.setStyle("-fx-background-color: #f3f4f6; -fx-border-color: #d1d5db;");
+                    GridPane.setColumnSpan(value, 2);
                     grid.add(label, 0, i);
-                    grid.add(value, 1, i);
+                    grid.add(value, 0, i + 1);
+                    GridPane.setRowSpan(value, 1);
                 } else {
                     Label value = new Label(departamentoData[i] != null ? departamentoData[i] : "N/A");
                     value.setWrapText(true);
@@ -183,7 +180,6 @@ public class ControllerDepartamento {
                 }
             }
 
-            // Botón cerrar
             Button btnCerrar = new Button("Cerrar");
             btnCerrar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 8 15;");
             btnCerrar.setOnAction(e -> dialog.close());
@@ -192,10 +188,8 @@ public class ControllerDepartamento {
             buttonPanel.getChildren().add(btnCerrar);
             buttonPanel.setAlignment(Pos.CENTER_RIGHT);
 
-            // Agregar elementos al layout principal
             mainVBox.getChildren().addAll(title, grid, buttonPanel);
 
-            // Configurar escena
             Scene scene = new Scene(mainVBox);
             dialog.setScene(scene);
             dialog.setResizable(false);
@@ -206,6 +200,7 @@ public class ControllerDepartamento {
             e.printStackTrace();
         }
     }
+
 
     private void eliminarDepartamento(String correoDepartamento) {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
