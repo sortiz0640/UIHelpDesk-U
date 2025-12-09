@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
 /**
@@ -48,7 +49,7 @@ public class ControllerSesion {
      * Maneja el evento de clic en el botón de login.
      */
     @FXML
-    private void handleLogin() throws SQLException {
+    private void handleLogin() throws SQLException, NoSuchAlgorithmException {
         String correo = emailField.getText().trim();
         String password = passwordField.getText();
 

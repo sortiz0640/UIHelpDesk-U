@@ -17,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -91,22 +92,13 @@ public class ControllerUsuario {
      */
     private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(param -> new TableCell<String[], Void>() {
-            private final Button btnVer = new Button("Ver");
             private final Button btnEliminar = new Button("Eliminar");
-            private final HBox buttonBox = new HBox(5, btnVer, btnEliminar);
+            private final HBox buttonBox = new HBox(5, btnEliminar);
             private boolean initialized = false;
 
             {
                 if (!initialized) {
-                    btnVer.setStyle("-fx-background-color: #00a6fb; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
                     btnEliminar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
-
-                    btnVer.setOnAction(event -> {
-                        String[] usuario = getTableView().getItems().get(getIndex());
-                        if (usuario != null && usuario.length > 2) {
-                            mostrarDetallesUsuario(usuario[2]); // Correo está en posición 2
-                        }
-                    });
 
                     btnEliminar.setOnAction(event -> {
                         String[] usuario = getTableView().getItems().get(getIndex());
@@ -129,80 +121,6 @@ public class ControllerUsuario {
                 }
             }
         });
-    }
-
-    /**
-     * Muestra los detalles del usuario en una ventana emergente
-     */
-    private void mostrarDetallesUsuario(String correoUsuario) {
-        try {
-            // Obtener detalles del usuario
-            String[] usuarioData = gestorApp.obtenerDetallesUsuario(correoUsuario);
-
-            if (usuarioData == null) {
-                mostrarAlerta("Error", "No se encontró el usuario", Alert.AlertType.ERROR);
-                return;
-            }
-
-            // Crear ventana emergente
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.initStyle(StageStyle.UTILITY);
-            dialog.setTitle("Detalles del Usuario: " + usuarioData[2]);
-
-            // Crear layout principal
-            VBox mainVBox = new VBox(20);
-            mainVBox.setPadding(new Insets(20));
-            mainVBox.setStyle("-fx-background-color: #f8fafc;");
-            mainVBox.setPrefWidth(400);
-
-            // Título
-            Label title = new Label("Detalles del Usuario");
-            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e40af;");
-
-            // Grid para detalles
-            GridPane grid = new GridPane();
-            grid.setVgap(10);
-            grid.setHgap(15);
-            grid.setPadding(new Insets(10));
-
-            // Añadir detalles al grid
-            String[] labels = {"Nombre:", "Apellidos:", "Correo:", "Rol:"};
-
-            for (int i = 0; i < labels.length && i < usuarioData.length; i++) {
-                Label label = new Label(labels[i]);
-                label.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
-
-                Label value = new Label(usuarioData[i] != null ? usuarioData[i] : "N/A");
-                value.setWrapText(true);
-                value.setStyle("-fx-text-fill: #6b7280;");
-
-                grid.add(label, 0, i);
-                grid.add(value, 1, i);
-            }
-
-            // Botón cerrar
-            Button btnCerrar = new Button("Cerrar");
-            btnCerrar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 8 15;");
-            btnCerrar.setOnAction(e -> dialog.close());
-
-            HBox buttonPanel = new HBox();
-            buttonPanel.getChildren().add(btnCerrar);
-            buttonPanel.setAlignment(Pos.CENTER_RIGHT);
-
-            // Agregar elementos al layout principal
-            mainVBox.getChildren().addAll(title, grid, buttonPanel);
-
-            // Configurar escena
-            Scene scene = new Scene(mainVBox);
-            dialog.setScene(scene);
-            dialog.setResizable(false);
-            dialog.showAndWait();
-
-        } catch (Exception e) {
-            mostrarAlerta("Error", "No se pudo mostrar los detalles del usuario", Alert.AlertType.ERROR);
-            e.printStackTrace();
-        }
     }
 
     private void eliminarUsuario(String correoUsuario) {
@@ -255,7 +173,7 @@ public class ControllerUsuario {
             VBox mainVBox = new VBox(15);
             mainVBox.setPadding(new Insets(20));
             mainVBox.setStyle("-fx-background-color: #f8fafc;");
-            mainVBox.setPrefWidth(400);
+            mainVBox.setPrefWidth(500); // Aumentado de 400 a 500
 
             Label title = new Label("Nuevo Usuario");
             title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e40af;");
@@ -263,29 +181,61 @@ public class ControllerUsuario {
             GridPane form = new GridPane();
             form.setVgap(10);
             form.setHgap(10);
+            form.setPrefWidth(460);
 
+            // Campos de entrada con ancho completo
             TextField txtNombre = new TextField();
             txtNombre.setPromptText("Nombre");
+            txtNombre.setPrefWidth(350);
+
             TextField txtApellidos = new TextField();
             txtApellidos.setPromptText("Apellidos");
+            txtApellidos.setPrefWidth(350);
+
             TextField txtCorreo = new TextField();
             txtCorreo.setPromptText("correo@ucenfotec.ac.cr");
+            txtCorreo.setPrefWidth(350);
+
             PasswordField txtPassword = new PasswordField();
             txtPassword.setPromptText("Contraseña");
+            txtPassword.setPrefWidth(350);
 
             ComboBox<String> cbRol = new ComboBox<>();
             cbRol.getItems().addAll("ADMIN", "ESTUDIANTE", "FUNCIONARIO");
             cbRol.setValue("ESTUDIANTE");
+            cbRol.setPrefWidth(350);
 
-            form.add(new Label("Nombre:"), 0, 0);
+            // Labels con estilo
+            Label lblNombre = new Label("Nombre:");
+            lblNombre.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+            lblNombre.setMinWidth(80);
+
+            Label lblApellidos = new Label("Apellidos:");
+            lblApellidos.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+            lblApellidos.setMinWidth(80);
+
+            Label lblCorreo = new Label("Correo:");
+            lblCorreo.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+            lblCorreo.setMinWidth(80);
+
+            Label lblPassword = new Label("Contraseña:");
+            lblPassword.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+            lblPassword.setMinWidth(80);
+
+            Label lblRol = new Label("Rol:");
+            lblRol.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+            lblRol.setMinWidth(80);
+
+            // Agregar al GridPane
+            form.add(lblNombre, 0, 0);
             form.add(txtNombre, 1, 0);
-            form.add(new Label("Apellidos:"), 0, 1);
+            form.add(lblApellidos, 0, 1);
             form.add(txtApellidos, 1, 1);
-            form.add(new Label("Correo:"), 0, 2);
+            form.add(lblCorreo, 0, 2);
             form.add(txtCorreo, 1, 2);
-            form.add(new Label("Contraseña:"), 0, 3);
+            form.add(lblPassword, 0, 3);
             form.add(txtPassword, 1, 3);
-            form.add(new Label("Rol:"), 0, 4);
+            form.add(lblRol, 0, 4);
             form.add(cbRol, 1, 4);
 
             Label lblError = new Label();
@@ -295,11 +245,11 @@ public class ControllerUsuario {
             buttonBox.setAlignment(Pos.CENTER_RIGHT);
 
             Button btnCancelar = new Button("Cancelar");
-            btnCancelar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white;");
+            btnCancelar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 8 15;");
             btnCancelar.setOnAction(e -> dialog.close());
 
             Button btnGuardar = new Button("Guardar");
-            btnGuardar.setStyle("-fx-background-color: #10b981; -fx-text-fill: white;");
+            btnGuardar.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-padding: 8 15;");
             btnGuardar.setOnAction(e -> {
                 if (validarFormulario(txtNombre, txtApellidos, txtCorreo, txtPassword, lblError)) {
                     int rolNum = cbRol.getValue().equals("ADMIN") ? 1 :
@@ -314,10 +264,9 @@ public class ControllerUsuario {
                                 txtPassword.getText(),
                                 rolNum
                         );
-                    } catch (SQLException ex) {
+                    } catch (SQLException | NoSuchAlgorithmException ex) {
                         throw new RuntimeException(ex);
                     }
-
                     mostrarAlerta("Resultado", resultado, Alert.AlertType.INFORMATION);
                     dialog.close();
                     try {

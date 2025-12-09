@@ -84,30 +84,19 @@ public class ControllerDepartamento {
      */
     private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(param -> new TableCell<String[], Void>() {
-            private final Button btnVer = new Button("Ver");
             private final Button btnEliminar = new Button("Eliminar");
-            private final HBox buttonBox = new HBox(5, btnVer, btnEliminar);
+            private final HBox buttonBox = new HBox(5, btnEliminar);
             private boolean initialized = false;
 
             {
                 if (!initialized) {
-                    btnVer.setStyle("-fx-background-color: #00a6fb; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
                     btnEliminar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5 10;");
-
-                    btnVer.setOnAction(event -> {
-                        String[] departamento = getTableView().getItems().get(getIndex());
-                        if (departamento != null && departamento.length > 1) {
-                            mostrarDetallesDepartamento(departamento[1]); // Correo está en posición 1
-                        }
-                    });
-
                     btnEliminar.setOnAction(event -> {
                         String[] departamento = getTableView().getItems().get(getIndex());
                         if (departamento != null && departamento.length > 1) {
                             eliminarDepartamento(departamento[1]); // Correo está en posición 1
                         }
                     });
-
                     initialized = true;
                 }
             }
@@ -123,84 +112,6 @@ public class ControllerDepartamento {
             }
         });
     }
-
-    /**
-     * Muestra los detalles del departamento en una ventana emergente
-     */
-
-    private void mostrarDetallesDepartamento(String correoDepartamento) {
-        try {
-            String[] departamentoData = gestorApp.obtenerDetallesDepartamento(correoDepartamento);
-
-            if (departamentoData == null) {
-                mostrarAlerta("Error", "No se encontró el departamento", Alert.AlertType.ERROR);
-                return;
-            }
-
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.initStyle(StageStyle.UTILITY);
-            dialog.setTitle("Detalles del Departamento: " + departamentoData[0]);
-
-            VBox mainVBox = new VBox(20);
-            mainVBox.setPadding(new Insets(20));
-            mainVBox.setStyle("-fx-background-color: #f8fafc;");
-            mainVBox.setPrefWidth(400);
-
-            Label title = new Label("Detalles del Departamento");
-            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e40af;");
-
-            GridPane grid = new GridPane();
-            grid.setVgap(10);
-            grid.setHgap(15);
-            grid.setPadding(new Insets(10));
-
-            String[] labels = {"Nombre:", "Correo:", "Descripción:"};
-
-            for (int i = 0; i < labels.length && i < departamentoData.length; i++) {
-                Label label = new Label(labels[i]);
-                label.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
-
-                if (i == 2) { // Descripción - usar TextArea
-                    TextArea value = new TextArea(departamentoData[i] != null ? departamentoData[i] : "N/A");
-                    value.setWrapText(true);
-                    value.setEditable(false);
-                    value.setPrefHeight(80);
-                    value.setStyle("-fx-background-color: #f3f4f6; -fx-border-color: #d1d5db;");
-                    GridPane.setColumnSpan(value, 2);
-                    grid.add(label, 0, i);
-                    grid.add(value, 0, i + 1);
-                    GridPane.setRowSpan(value, 1);
-                } else {
-                    Label value = new Label(departamentoData[i] != null ? departamentoData[i] : "N/A");
-                    value.setWrapText(true);
-                    value.setStyle("-fx-text-fill: #6b7280;");
-                    grid.add(label, 0, i);
-                    grid.add(value, 1, i);
-                }
-            }
-
-            Button btnCerrar = new Button("Cerrar");
-            btnCerrar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 8 15;");
-            btnCerrar.setOnAction(e -> dialog.close());
-
-            HBox buttonPanel = new HBox();
-            buttonPanel.getChildren().add(btnCerrar);
-            buttonPanel.setAlignment(Pos.CENTER_RIGHT);
-
-            mainVBox.getChildren().addAll(title, grid, buttonPanel);
-
-            Scene scene = new Scene(mainVBox);
-            dialog.setScene(scene);
-            dialog.setResizable(false);
-            dialog.showAndWait();
-
-        } catch (Exception e) {
-            mostrarAlerta("Error", "No se pudo mostrar los detalles del departamento", Alert.AlertType.ERROR);
-            e.printStackTrace();
-        }
-    }
-
 
     private void eliminarDepartamento(String correoDepartamento) {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
@@ -252,7 +163,7 @@ public class ControllerDepartamento {
             VBox mainVBox = new VBox(15);
             mainVBox.setPadding(new Insets(20));
             mainVBox.setStyle("-fx-background-color: #f8fafc;");
-            mainVBox.setPrefWidth(400);
+            mainVBox.setPrefWidth(500); // Aumentado de 400 a 500
 
             Label title = new Label("Nuevo Departamento");
             title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e40af;");
@@ -260,21 +171,42 @@ public class ControllerDepartamento {
             GridPane form = new GridPane();
             form.setVgap(10);
             form.setHgap(10);
+            form.setPrefWidth(460); // Ancho del formulario
 
+            // Campos de entrada con ancho completo
             TextField txtNombre = new TextField();
             txtNombre.setPromptText("Nombre del departamento");
+            txtNombre.setPrefWidth(350); // Ancho fijo para los campos
+
             TextField txtCorreo = new TextField();
             txtCorreo.setPromptText("departamento@ucenfotec.ac.cr");
+            txtCorreo.setPrefWidth(350);
+
             TextArea txtDescripcion = new TextArea();
             txtDescripcion.setPromptText("Descripción de funciones");
             txtDescripcion.setPrefHeight(80);
+            txtDescripcion.setPrefWidth(350);
             txtDescripcion.setWrapText(true);
 
-            form.add(new Label("Nombre:"), 0, 0);
+            // Labels con estilo
+            Label lblNombre = new Label("Nombre:");
+            lblNombre.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+            lblNombre.setMinWidth(80);
+
+            Label lblCorreo = new Label("Correo:");
+            lblCorreo.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+            lblCorreo.setMinWidth(80);
+
+            Label lblDescripcion = new Label("Descripción:");
+            lblDescripcion.setStyle("-fx-font-weight: bold; -fx-text-fill: #374151;");
+            lblDescripcion.setMinWidth(80);
+
+            // Agregar al GridPane
+            form.add(lblNombre, 0, 0);
             form.add(txtNombre, 1, 0);
-            form.add(new Label("Correo:"), 0, 1);
+            form.add(lblCorreo, 0, 1);
             form.add(txtCorreo, 1, 1);
-            form.add(new Label("Descripción:"), 0, 2);
+            form.add(lblDescripcion, 0, 2);
             form.add(txtDescripcion, 1, 2);
 
             Label lblError = new Label();
@@ -284,11 +216,11 @@ public class ControllerDepartamento {
             buttonBox.setAlignment(Pos.CENTER_RIGHT);
 
             Button btnCancelar = new Button("Cancelar");
-            btnCancelar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white;");
+            btnCancelar.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 8 15;");
             btnCancelar.setOnAction(e -> dialog.close());
 
             Button btnGuardar = new Button("Guardar");
-            btnGuardar.setStyle("-fx-background-color: #10b981; -fx-text-fill: white;");
+            btnGuardar.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-padding: 8 15;");
             btnGuardar.setOnAction(e -> {
                 if (validarFormulario(txtNombre, txtCorreo, txtDescripcion, lblError)) {
                     String resultado = " ";
