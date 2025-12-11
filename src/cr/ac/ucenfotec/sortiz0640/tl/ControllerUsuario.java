@@ -21,6 +21,14 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Controlador para la gestión de usuarios (CRUD).
+ * Permite listar, agregar y eliminar usuarios del sistema.
+ *
+ * @author Sebastian Ortiz
+ * @version 1.0
+ * @since 2025
+ */
 public class ControllerUsuario {
 
     @FXML private Label lblUsuario;
@@ -35,6 +43,13 @@ public class ControllerUsuario {
     private GestorApp gestorApp;
     private ControllerApp controllerApp;
 
+    /**
+     * Inicializa el controlador de gestión de usuarios.
+     *
+     * @param gestorApp Instancia del gestor de lógica de negocio.
+     * @param controllerApp Instancia del controlador principal.
+     * @throws SQLException Si ocurre un error al cargar los usuarios.
+     */
     public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) throws SQLException {
         this.gestorApp = gestorApp;
         this.controllerApp = controllerApp;
@@ -53,6 +68,9 @@ public class ControllerUsuario {
         lblTitulo.setText("Gestión de Usuarios");
     }
 
+    /**
+     * Configura las columnas de la tabla de usuarios.
+     */
     private void configurarTabla() {
         // Configurar las columnas de datos
         colNombre.setCellValueFactory(data -> {
@@ -88,7 +106,7 @@ public class ControllerUsuario {
     }
 
     /**
-     * Configura la columna de acciones con botones "Ver" y "Eliminar"
+     * Configura la columna de acciones con botón "Eliminar".
      */
     private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(param -> new TableCell<String[], Void>() {
@@ -123,6 +141,11 @@ public class ControllerUsuario {
         });
     }
 
+    /**
+     * Elimina un usuario seleccionado tras confirmación.
+     *
+     * @param correoUsuario Correo del usuario a eliminar.
+     */
     private void eliminarUsuario(String correoUsuario) {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar eliminación");
@@ -147,6 +170,11 @@ public class ControllerUsuario {
         });
     }
 
+    /**
+     * Carga y muestra todos los usuarios en la tabla.
+     *
+     * @throws SQLException Si ocurre un error en la base de datos.
+     */
     @FXML
     private void cargarUsuarios() throws SQLException {
         ArrayList<String[]> usuariosData = gestorApp.obtenerTodosUsuariosFormato();
@@ -160,6 +188,9 @@ public class ControllerUsuario {
         tableUsuarios.refresh();
     }
 
+    /**
+     * Abre un formulario modal para agregar un nuevo usuario.
+     */
     @FXML
     private void abrirAgregarUsuario() {
         try {
@@ -291,6 +322,9 @@ public class ControllerUsuario {
         }
     }
 
+    /**
+     * Valida los campos del formulario de usuario.
+     */
     private boolean validarFormulario(TextField nombre, TextField apellidos,
                                       TextField correo, PasswordField password,
                                       Label errorLabel) {
@@ -314,6 +348,9 @@ public class ControllerUsuario {
         return true;
     }
 
+    /**
+     * Regresa a la vista principal.
+     */
     @FXML
     private void regresarAlHome() {
         try {
@@ -336,6 +373,9 @@ public class ControllerUsuario {
         }
     }
 
+    /**
+     * Muestra una alerta simple.
+     */
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);

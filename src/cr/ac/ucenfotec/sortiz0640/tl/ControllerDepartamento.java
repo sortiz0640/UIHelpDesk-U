@@ -20,6 +20,14 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Controlador para la gestión de departamentos.
+ * Permite listar, agregar y eliminar departamentos del sistema.
+ *
+ * @author Sebastian Ortiz
+ * @version 1.0
+ * @since 2025
+ */
 public class ControllerDepartamento {
 
     @FXML private Label lblUsuario;
@@ -33,6 +41,13 @@ public class ControllerDepartamento {
     private GestorApp gestorApp;
     private ControllerApp controllerApp;
 
+    /**
+     * Inicializa el controlador de gestión de departamentos.
+     *
+     * @param gestorApp Instancia del gestor de lógica de negocio.
+     * @param controllerApp Instancia del controlador principal.
+     * @throws SQLException Si ocurre un error al cargar los departamentos.
+     */
     public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) throws SQLException {
         this.gestorApp = gestorApp;
         this.controllerApp = controllerApp;
@@ -52,6 +67,9 @@ public class ControllerDepartamento {
         lblTitulo.setText("Gestión de Departamentos");
     }
 
+    /**
+     * Configura las columnas de la tabla de departamentos.
+     */
     private void configurarTabla() {
         // Configurar las columnas de datos
         colNombre.setCellValueFactory(data -> {
@@ -80,7 +98,7 @@ public class ControllerDepartamento {
     }
 
     /**
-     * Configura la columna de acciones con botones "Ver" y "Eliminar"
+     * Configura la columna de acciones con botón "Eliminar".
      */
     private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(param -> new TableCell<String[], Void>() {
@@ -113,6 +131,11 @@ public class ControllerDepartamento {
         });
     }
 
+    /**
+     * Elimina un departamento seleccionado tras confirmación.
+     *
+     * @param correoDepartamento Correo del departamento a eliminar.
+     */
     private void eliminarDepartamento(String correoDepartamento) {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar eliminación");
@@ -137,6 +160,11 @@ public class ControllerDepartamento {
         });
     }
 
+    /**
+     * Carga y muestra todos los departamentos en la tabla.
+     *
+     * @throws SQLException Si ocurre un error en la base de datos.
+     */
     @FXML
     private void cargarDepartamentos() throws SQLException {
         ArrayList<String[]> departamentosData = gestorApp.obtenerTodosDepartamentosFormato();
@@ -150,6 +178,9 @@ public class ControllerDepartamento {
         tableDepartamentos.refresh();
     }
 
+    /**
+     * Abre un formulario modal para agregar un nuevo departamento.
+     */
     @FXML
     private void abrirAgregarDepartamento() {
         try {
@@ -258,6 +289,9 @@ public class ControllerDepartamento {
         }
     }
 
+    /**
+     * Valida los campos del formulario de departamento.
+     */
     private boolean validarFormulario(TextField nombre, TextField correo,
                                       TextArea descripcion, Label errorLabel) {
         if (nombre.getText().trim().isEmpty() || correo.getText().trim().isEmpty() ||
@@ -275,6 +309,9 @@ public class ControllerDepartamento {
         return true;
     }
 
+    /**
+     * Regresa a la vista principal.
+     */
     @FXML
     private void regresarAlHome() {
         try {
@@ -295,6 +332,9 @@ public class ControllerDepartamento {
         }
     }
 
+    /**
+     * Muestra una alerta simple.
+     */
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);

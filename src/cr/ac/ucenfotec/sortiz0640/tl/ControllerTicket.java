@@ -13,7 +13,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
- * Controlador de gestión de tickets del sistema HelpDesk (solo JavaFX)
+ * Controlador de gestión de tickets del sistema HelpDesk (solo JavaFX).
+ * Maneja la creación de nuevos tickets.
+ *
+ * @author Sebastian Ortiz
+ * @version 1.0
+ * @since 2025
  */
 public class ControllerTicket {
 
@@ -27,13 +32,18 @@ public class ControllerTicket {
     private ControllerApp controllerApp;
 
     /**
-     * Constructor vacío requerido por JavaFX
+     * Constructor vacío requerido por JavaFX.
      */
     public ControllerTicket() {
     }
 
     /**
-     * Inicializa el controlador con las dependencias necesarias
+     * Inicializa el controlador con las dependencias necesarias.
+     * Carga la lista de departamentos disponibles.
+     *
+     * @param gestorApp Instancia del gestor principal.
+     * @param controllerApp Instancia del controlador principal.
+     * @throws SQLException Si ocurre un error al cargar datos.
      */
     public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) throws SQLException {
         this.gestorApp = gestorApp;
@@ -46,6 +56,9 @@ public class ControllerTicket {
     private void initialize() {
     }
 
+    /**
+     * Configura la información visual del usuario actual.
+     */
     private void configurarInterfaz() {
         if (gestorApp != null && gestorApp.esSesionActiva()) {
             String correoUsuario = gestorApp.obtenerCorreoUsuarioActual();
@@ -53,6 +66,11 @@ public class ControllerTicket {
         }
     }
 
+    /**
+     * Obtiene y llena el ComboBox con los departamentos existentes.
+     *
+     * @throws SQLException Si ocurre un error en la base de datos.
+     */
     private void cargarDepartamentos() throws SQLException {
         if (gestorApp != null) {
 
@@ -74,6 +92,13 @@ public class ControllerTicket {
     }
 
 
+    /**
+     * Acción de crear un nuevo ticket.
+     * Valida los campos y solicita al gestor la creación.
+     *
+     * @throws SQLException Si ocurre un error en BD.
+     * @throws ClassNotFoundException Si no se encuentra una clase requerida.
+     */
     @FXML
     private void crearTicket() throws SQLException, ClassNotFoundException {
         // Validaciones
@@ -106,11 +131,17 @@ public class ControllerTicket {
         }
     }
 
+    /**
+     * Cancela la operación actual y regresa al menú principal.
+     */
     @FXML
     private void cancelarCreacion() {
         regresarAlHome();
     }
 
+    /**
+     * Navega de regreso a la pantalla principal.
+     */
     @FXML
     private void regresarAlHome() {
         try {
@@ -132,11 +163,17 @@ public class ControllerTicket {
         }
     }
 
+    /**
+     * Muestra un mensaje de error o validación en la interfaz.
+     */
     private void mostrarMensaje(String mensaje) {
         lblMensaje.setText(mensaje);
         lblMensaje.setVisible(true);
     }
 
+    /**
+     * Muestra una alerta emergente.
+     */
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);

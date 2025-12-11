@@ -20,6 +20,14 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Controlador principal de la aplicación (Dashboard).
+ * Gestiona la vista de tickets, navegación y operaciones generales.
+ *
+ * @author Sebastian Ortiz
+ * @version 1.0
+ * @since 2025
+ */
 public class ControllerApp {
 
     @FXML private Label lblUsuario;
@@ -38,6 +46,13 @@ public class ControllerApp {
 
     private GestorApp gestorApp;
 
+    /**
+     * Inicializa el controlador principal.
+     * Configura la interfaz según el rol del usuario y carga los datos.
+     *
+     * @param gestorApp Instancia del gestor de lógica de negocio.
+     * @throws SQLException Si ocurre un error al cargar datos iniciales.
+     */
     public void inicializar(GestorApp gestorApp) throws SQLException {
         this.gestorApp = gestorApp;
         configurarInterfaz();
@@ -45,11 +60,18 @@ public class ControllerApp {
         cargarTickets();
     }
 
+    /**
+     * Método inicializador de JavaFX.
+     */
     @FXML
     private void initialize() {
         // JavaFX llama esto automáticamente
     }
 
+    /**
+     * Configura elementos visuales como etiquetas y visibilidad de botones
+     * dependiendo de si el usuario es administrador o no.
+     */
     private void configurarInterfaz() {
         String correoUsuario = gestorApp.obtenerCorreoUsuarioActual();
         lblUsuario.setText("Home, @" + correoUsuario.split("@")[0]);
@@ -65,6 +87,9 @@ public class ControllerApp {
         }
     }
 
+    /**
+     * Configura las columnas de la tabla de tickets y sus fábricas de celdas.
+     */
     private void configurarTabla() {
         // Configurar las columnas de datos
         colId.setCellValueFactory(data -> {
@@ -125,9 +150,8 @@ public class ControllerApp {
     }
 
     /**
-     * Configura la columna de acciones con botón "Ver"
+     * Configura la columna de acciones (botones Ver, BoW, Eliminar) para administradores.
      */
-
     private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(param -> new TableCell<String[], Void>() {
             private final Button btnVer = new Button("Ver");
@@ -182,7 +206,9 @@ public class ControllerApp {
     }
 
     /**
-     * Muestra las palabras detonantes (Bag of Words) del ticket
+     * Muestra una ventana modal con las palabras detonantes (Bag of Words) del ticket.
+     *
+     * @param ticketId ID del ticket a consultar.
      */
     private void mostrarBoWTicket(String ticketId) {
         try {
@@ -302,10 +328,11 @@ public class ControllerApp {
         }
     }
 
-
-
     /**
-     * Muestra los detalles del ticket en una ventana emergente
+     * Muestra los detalles completos del ticket en una ventana emergente.
+     * Permite actualizar el estado si el usuario es administrador.
+     *
+     * @param ticketId ID del ticket a visualizar.
      */
     private void mostrarDetallesTicket(String ticketId) {
         try {
@@ -474,6 +501,11 @@ public class ControllerApp {
         }
     }
 
+    /**
+     * Elimina un ticket del sistema tras confirmación.
+     *
+     * @param ticketId ID del ticket a eliminar.
+     */
     private void eliminarTicket(String ticketId) {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar eliminación");
@@ -498,6 +530,12 @@ public class ControllerApp {
         });
     }
 
+    /**
+     * Carga la lista de tickets en la tabla desde la base de datos.
+     * Filtra según el rol del usuario (Admin ve todos, usuarios ven los suyos).
+     *
+     * @throws SQLException Si ocurre un error al obtener los tickets.
+     */
     @FXML
     private void cargarTickets() throws SQLException {
         ArrayList<String[]> ticketsData;
@@ -520,7 +558,9 @@ public class ControllerApp {
         tableTickets.refresh();
     }
 
-    // Los demás métodos se mantienen igual
+    /**
+     * Abre la ventana de creación de un nuevo ticket.
+     */
     @FXML
     private void abrirCrearTicket() {
         try {
@@ -543,6 +583,9 @@ public class ControllerApp {
         }
     }
 
+    /**
+     * Cierra la sesión del usuario actual y regresa al login.
+     */
     @FXML
     private void cerrarSesion() {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
@@ -561,6 +604,11 @@ public class ControllerApp {
         });
     }
 
+    /**
+     * Carga la escena de login.
+     *
+     * @throws IOException Si falla la carga del FXML.
+     */
     private void volverAlLogin() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/cr/ac/ucenfotec/sortiz0640/ui/sesion.fxml"));
         Parent root = loader.load();
@@ -575,6 +623,9 @@ public class ControllerApp {
         stage.setResizable(false);
     }
 
+    /**
+     * Muestra una alerta simple.
+     */
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
@@ -583,6 +634,9 @@ public class ControllerApp {
         alert.showAndWait();
     }
 
+    /**
+     * Abre la ventana de gestión de usuarios (solo admin).
+     */
     @FXML
     private void abrirUsuarios() {
         try {
@@ -605,6 +659,9 @@ public class ControllerApp {
         }
     }
 
+    /**
+     * Abre la ventana de gestión de departamentos (solo admin).
+     */
     @FXML
     private void abrirDepartamentos() {
         try {

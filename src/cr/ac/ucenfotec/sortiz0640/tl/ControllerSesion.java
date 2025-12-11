@@ -39,14 +39,19 @@ public class ControllerSesion {
      * Inicializa el controlador con las dependencias necesarias.
      * Llamado desde Main después de cargar el FXML.
      *
-     * @param gestorApp Gestor principal de la aplicación
-     * @param controllerApp Controlador principal de la aplicación
+     * @param gestorApp Gestor principal de la aplicación.
+     * @param controllerApp Controlador principal de la aplicación (puede ser null en login).
      */
     public void inicializar(GestorApp gestorApp, ControllerApp controllerApp) {
         this.gestorApp = gestorApp;
     }
+
     /**
      * Maneja el evento de clic en el botón de login.
+     * Valida credenciales e inicia la sesión si son correctas.
+     *
+     * @throws SQLException Si ocurre un error de base de datos.
+     * @throws NoSuchAlgorithmException Si ocurre un error de encriptación.
      */
     @FXML
     private void handleLogin() throws SQLException, NoSuchAlgorithmException {
@@ -86,7 +91,10 @@ public class ControllerSesion {
     }
 
     /**
-     * Abre la ventana principal de la aplicación.
+     * Carga y muestra la ventana principal de la aplicación (Dashboard).
+     *
+     * @throws IOException Si no se puede cargar el archivo FXML.
+     * @throws SQLException Si ocurre un error al inicializar datos en la ventana principal.
      */
     private void abrirVentanaPrincipal() throws IOException, SQLException {
         // Cargar la vista principal
@@ -107,7 +115,11 @@ public class ControllerSesion {
     }
 
     /**
-     * Muestra una alerta con el mensaje especificado.
+     * Muestra una alerta emergente con el mensaje especificado.
+     *
+     * @param titulo Título de la ventana.
+     * @param mensaje Contenido del mensaje.
+     * @param tipo Tipo de alerta (ERROR, INFORMATION, etc.).
      */
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
@@ -118,8 +130,8 @@ public class ControllerSesion {
     }
 
     /**
-     * Método que se ejecuta automáticamente después de cargar el FXML
-     * Puede usarse para configuraciones iniciales de la interfaz
+     * Método que se ejecuta automáticamente después de cargar el FXML.
+     * Pone el foco en el campo de correo.
      */
     @FXML
     private void initialize() {
